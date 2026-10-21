@@ -292,14 +292,14 @@ function executePhase1(t) {
 
 function executePhase2(t) {
     if (t === 2640) {
-        // Added center warning for the windmill
         spawnWarning(canvas.width / 2, canvas.height / 2, "ring", 0, 150, 60);
     }
     
     if (t > 2700 && t < 3500 && t % 5 === 0) {
         let cx = canvas.width / 2;
         let cy = canvas.height / 2;
-        let angle = t * 0.5; // Increased windmill speed
+        // Toned down the windmill speed from 0.5 to 0.25
+        let angle = t * 0.25; 
         spawnProjectile(cx, cy, Math.cos(angle)*12, Math.sin(angle)*12, 20, 150, false, 'wingding');
         spawnProjectile(cx, cy, Math.cos(angle + Math.PI/2)*12, Math.sin(angle + Math.PI/2)*12, 20, 150, false, 'wingding');
         spawnProjectile(cx, cy, Math.cos(angle + Math.PI)*12, Math.sin(angle + Math.PI)*12, 20, 150, false, 'wingding');
@@ -321,7 +321,6 @@ function executePhase2(t) {
             spawnWarning(startX === -50 ? 50 : canvas.width - 50, p1.y - 100, dir, "split_wall", p1.y + 100, 40);
         }
         if (t % 90 === 0) {
-            // Added sniper tracking to make Phase 2.3 harder
             spawnWarning(canvas.width / 2, canvas.height / 2, "sniper_line", p1.x, p1.y, 45);
         }
     }
@@ -331,31 +330,45 @@ function executePhase3(t) {
     if (t > 5700 && t < 6700) {
         if (t % 30 === 0) spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 40);
         if (t % 10 === 0) {
-            // Slower, less dense rain so no-hitting is possible
             spawnProjectile(Math.random() * canvas.width, -20, 0, 8, 12, 150, false, 'wingding');
         }
     }
 
     if (t === 6740) spawnWarning(canvas.width / 2, canvas.height / 2, "middle_line", 0, 40, 60);
+    
+    // Explicitly clear arrays right before the heavy laser phase to prevent carry-over lag
+    if (t === 6790) { projectiles = []; warnings = []; }
 
     if (t > 6800 && t < 7800) {
         if (t % 30 === 0) {
             spawnWarning(0, 0, "diag_laser_1", 0, 0, 45);
             spawnWarning(canvas.width, 0, "diag_laser_2", 0, 0, 45);
         }
-        if (t % 12 === 0) {
-            // Spacing out crossfire and adding life limits to kill lag
-            spawnProjectile(0, p1.y, 14, 0, 15, 150, false, 'wingding');
-            spawnProjectile(p1.x, 0, 0, 14, 15, 150, false, 'wingding');
+        // Drastically reduced spawn frequency from every 12 frames to every 25 to kill the lag
+        if (t % 25 === 0) {
+            spawnProjectile(0, p1.y, 14, 0, 15, 120, false, 'wingding');
+            spawnProjectile(p1.x, 0, 0, 14, 15, 120, false, 'wingding');
         }
     }
 
     if (t === 7850) { projectiles = []; warnings = []; }
 
     if (t > 7900 && t < 8900) {
-        if (t % 40 === 0) spawnWarning(Math.random() * canvas.width, Math.random() * canvas.height, "ring", 0, 80, 30);
-        if (t % 50 === 0) spawnWarning(Math.random() > 0.5 ? 50 : canvas.width - 50, Math.random() * canvas.height, "sniper_line", p1.x, p1.y, 40);
-        if (t % 6 === 0) spawnProjectile(Math.random() * canvas.width, -20, (Math.random()-0.5)*4, 12, 18, 150, false, 'wingding');
+        // Phase 3.3 Strategy rework: RNG removed. Predictable rings, baitable snipers, sweeping waves.
+        if (t % 90 === 0) {
+            spawnWarning(150, 150, "ring", 0, 80, 45);
+            spawnWarning(canvas.width - 150, canvas.height - 150, "ring", 0, 80, 45);
+        }
+        if (t % 60 === 0) {
+            // Snipers now consistently target the player's exact position to allow baiting
+            spawnWarning(canvas.width / 2, 50, "sniper_line", p1.x, p1.y, 40);
+        }
+        if (t % 15 === 0) {
+            // Sweeping wave pattern instead of random noise
+            let sweepX = (t % 300) / 300 * canvas.width;
+            spawnProjectile(sweepX, -20, 0, 10, 18, 150, false, 'wingding');
+            spawnProjectile(canvas.width - sweepX, canvas.height + 20, 0, -10, 18, 150, false, 'wingding');
+        }
     }
 }
 
