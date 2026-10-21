@@ -247,6 +247,7 @@ window.addEventListener('keyup', (e) => {
 });
 
 function executePhase1(t) {
+    // PHASE 1.1 (Frames 0 to 740)
     if (t === 60) {
         spawnWarning(canvas.width / 2, canvas.height / 2, "spinner_warn", 0, 100, 120);
     }
@@ -262,6 +263,7 @@ function executePhase1(t) {
 
     if (t === 740) { projectiles = []; warnings = []; }
 
+    // PHASE 1.2 (Frames 800 to 1560)
     if (t > 800 && t < 1500) {
         if (t % 60 === 0) spawnWarning(p1.x, p1.y, "track", "p1", 0, 30);
         if (t % 15 === 0) {
@@ -272,6 +274,7 @@ function executePhase1(t) {
 
     if (t === 1560) { projectiles = []; warnings = []; }
 
+    // PHASE 1.3 (Frames 1600 to 2300)
     if (t > 1600 && t < 2300) {
         if (t % 90 === 0) {
             let offset = Math.random() * 100;
@@ -279,7 +282,6 @@ function executePhase1(t) {
             for(let y = 50 + offset; y < canvas.height; y += 200) spawnWarning(0, y, "grid_laser_h", 0, 0, 60);
         }
         if (t % 40 === 0) {
-            // Calibrated to prevent spawning directly on the player
             let spawnX, spawnY;
             do {
                 spawnX = Math.random() * canvas.width;
@@ -288,9 +290,22 @@ function executePhase1(t) {
             spawnProjectile(spawnX, spawnY, (Math.random()-0.5)*10, (Math.random()-0.5)*10, 20, 400, true);
         }
     }
+
+    // TRANSITION 1: The Void's Gaze (Frames 2350 to 2600)
+    if (t === 2350) { projectiles = []; warnings = []; }
+    if (t > 2400 && t < 2600) {
+        if (t % 60 === 0) {
+            // Slow, massive tracking bullets that force wide dodges
+            let dx = p1.x - (canvas.width / 2);
+            let dy = p1.y - (canvas.height / 2);
+            let dist = Math.hypot(dx, dy) || 1;
+            spawnProjectile(canvas.width / 2, canvas.height / 2, (dx/dist)*3.5, (dy/dist)*3.5, 45, 300, true, 'wingding');
+        }
+    }
 }
 
 function executePhase2(t) {
+    // PHASE 2.1 (Frames 2700 to 3500)
     if (t === 2640) {
         spawnWarning(canvas.width / 2, canvas.height / 2, "ring", 0, 150, 60);
     }
@@ -298,14 +313,15 @@ function executePhase2(t) {
     if (t > 2700 && t < 3500 && t % 5 === 0) {
         let cx = canvas.width / 2;
         let cy = canvas.height / 2;
-        // Toned down the windmill speed from 0.5 to 0.25
-        let angle = t * 0.25; 
+        // Reduced windmill speed significantly for better balance
+        let angle = t * 0.12; 
         spawnProjectile(cx, cy, Math.cos(angle)*12, Math.sin(angle)*12, 20, 150, false, 'wingding');
         spawnProjectile(cx, cy, Math.cos(angle + Math.PI/2)*12, Math.sin(angle + Math.PI/2)*12, 20, 150, false, 'wingding');
         spawnProjectile(cx, cy, Math.cos(angle + Math.PI)*12, Math.sin(angle + Math.PI)*12, 20, 150, false, 'wingding');
         spawnProjectile(cx, cy, Math.cos(angle + Math.PI*1.5)*12, Math.sin(angle + Math.PI*1.5)*12, 20, 150, false, 'wingding');
     }
 
+    // PHASE 2.2 (Frames 3600 to 4500)
     if (t > 3600 && t < 4500) {
         if (t % 45 === 0) spawnWarning(Math.random() * (canvas.width - 100) + 50, Math.random() * (canvas.height - 100) + 50, "ring", 0, 60, 45); 
         if (t % 10 === 0) {
@@ -314,6 +330,7 @@ function executePhase2(t) {
         }
     }
 
+    // PHASE 2.3 (Frames 4500 to 5300)
     if (t > 4500 && t < 5300) {
         if (t % 60 === 0) {
             let dir = Math.random() > 0.5 ? 1 : -1;
@@ -324,9 +341,23 @@ function executePhase2(t) {
             spawnWarning(canvas.width / 2, canvas.height / 2, "sniper_line", p1.x, p1.y, 45);
         }
     }
+
+    // TRANSITION 2: Closing Walls (Frames 5350 to 5650)
+    if (t === 5350) { projectiles = []; warnings = []; }
+    if (t > 5400 && t < 5600) {
+        if (t % 40 === 0) {
+            // Lasers slowly pinch the player toward the center
+            let offset = (t - 5400) / 2;
+            spawnWarning(offset, 0, "grid_laser_v", 0, 0, 40);
+            spawnWarning(canvas.width - offset, 0, "grid_laser_v", 0, 0, 40);
+            spawnWarning(0, offset, "grid_laser_h", 0, 0, 40);
+            spawnWarning(0, canvas.height - offset, "grid_laser_h", 0, 0, 40);
+        }
+    }
 }
 
 function executePhase3(t) {
+    // PHASE 3.1 (Frames 5700 to 6700)
     if (t > 5700 && t < 6700) {
         if (t % 30 === 0) spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 40);
         if (t % 10 === 0) {
@@ -336,35 +367,43 @@ function executePhase3(t) {
 
     if (t === 6740) spawnWarning(canvas.width / 2, canvas.height / 2, "middle_line", 0, 40, 60);
     
-    // Explicitly clear arrays right before the heavy laser phase to prevent carry-over lag
     if (t === 6790) { projectiles = []; warnings = []; }
 
+    // REDESIGNED PHASE 3.2: Tracking Blasters & Expanding Void (Frames 6800 to 7800)
+    // Completely rebuilt to avoid massive overlapping diagonal lasers that caused rendering lag.
     if (t > 6800 && t < 7800) {
-        if (t % 30 === 0) {
-            spawnWarning(0, 0, "diag_laser_1", 0, 0, 45);
-            spawnWarning(canvas.width, 0, "diag_laser_2", 0, 0, 45);
+        if (t % 90 === 0) {
+            // Precise cross-map snipers that force the player to keep moving
+            spawnWarning(50, 50, "sniper_line", p1.x, p1.y, 60);
+            spawnWarning(canvas.width - 50, canvas.height - 50, "sniper_line", p1.x, p1.y, 60);
         }
-        // Drastically reduced spawn frequency from every 12 frames to every 25 to kill the lag
-        if (t % 25 === 0) {
-            spawnProjectile(0, p1.y, 14, 0, 15, 120, false, 'wingding');
-            spawnProjectile(p1.x, 0, 0, 14, 15, 120, false, 'wingding');
+        
+        if (t % 120 === 0) {
+            // Expanding rings of Wingdings from random zones
+            let cx = Math.random() * (canvas.width - 200) + 100;
+            let cy = Math.random() * (canvas.height - 200) + 100;
+            spawnWarning(cx, cy, "ring", 0, 100, 45);
+            // Spawn ring exactly when warning finishes
+            setTimeout(() => {
+                for (let i = 0; i < Math.PI * 2; i += Math.PI / 4) {
+                    spawnProjectile(cx, cy, Math.cos(i) * 6, Math.sin(i) * 6, 18, 200, false, 'wingding');
+                }
+            }, 45 * (1000/60)); // Approximate frame timing 
         }
     }
 
     if (t === 7850) { projectiles = []; warnings = []; }
 
+    // PHASE 3.3 (Frames 7900 to 8900)
     if (t > 7900 && t < 8900) {
-        // Phase 3.3 Strategy rework: RNG removed. Predictable rings, baitable snipers, sweeping waves.
         if (t % 90 === 0) {
             spawnWarning(150, 150, "ring", 0, 80, 45);
             spawnWarning(canvas.width - 150, canvas.height - 150, "ring", 0, 80, 45);
         }
         if (t % 60 === 0) {
-            // Snipers now consistently target the player's exact position to allow baiting
             spawnWarning(canvas.width / 2, 50, "sniper_line", p1.x, p1.y, 40);
         }
         if (t % 15 === 0) {
-            // Sweeping wave pattern instead of random noise
             let sweepX = (t % 300) / 300 * canvas.width;
             spawnProjectile(sweepX, -20, 0, 10, 18, 150, false, 'wingding');
             spawnProjectile(canvas.width - sweepX, canvas.height + 20, 0, -10, 18, 150, false, 'wingding');
