@@ -102,8 +102,8 @@ function updateColorButtons() {
     });
 }
 
-function spawnProjectile(x, y, vx, vy, size, life = Infinity, isBouncy = false) {
-    projectiles.push({ x, y, vx, vy, size, life, isBouncy });
+function spawnProjectile(x, y, vx, vy, size, life = Infinity, isBouncy = false, type = 'normal') {
+    projectiles.push({ x, y, vx, vy, size, life, isBouncy, type });
 }
 
 function spawnWarning(x, y, vx, vy, size, delayTimer) {
@@ -247,134 +247,125 @@ window.addEventListener('keyup', (e) => {
 });
 
 function executePhase1(t) {
-    // PHASE 1.1: Original 1.1 & Original 1.2 (Frames 0 to 740)
-    if (t === 120) {
-        spawnWarning(0, 0, "diag_laser_1", 0, 0, 60); 
-        spawnWarning(canvas.width, 0, "diag_laser_2", 0, 0, 60);
-        spawnWarning(canvas.width/2, canvas.height/2, "spinner_warn", 0, 80, 60);
+    // PHASE 1.1: The Hands Awaken (Frames 0 to 800)
+    if (t === 60) {
+        spawnWarning(canvas.width / 2, canvas.height / 2, "spinner_warn", 0, 100, 120);
+    }
+    if (t > 180 && t < 700 && t % 30 === 0) {
+        // Blaster simulations: thick lines sweeping the arena
+        let startY = Math.random() > 0.5 ? 50 : canvas.height - 50;
+        spawnWarning(50, startY, "sniper_line", canvas.width - 50, canvas.height / 2, 45);
+    }
+    if (t > 300 && t < 700 && t % 8 === 0) {
+        // Wingding spread from the center
+        let angle = (t * 0.1) + Math.sin(t * 0.05);
+        spawnProjectile(canvas.width / 2, canvas.height / 2, Math.cos(angle)*6, Math.sin(angle)*6, 18, Infinity, false, 'wingding');
+        spawnProjectile(canvas.width / 2, canvas.height / 2, Math.cos(angle + Math.PI)*6, Math.sin(angle + Math.PI)*6, 18, Infinity, false, 'wingding');
     }
 
-    if (t === 180) {
-        spawnProjectile(100, 100, 6, 6, 50, 800, true); 
-    }
+    if (t === 740) { projectiles = []; warnings = []; }
 
-    if (t > 180 && t < 740 && t % 4 === 0) {
-        let angle = t * 0.15;
-        let cx = canvas.width / 2; let cy = canvas.height / 2;
-        spawnProjectile(cx, cy, Math.cos(angle)*7, Math.sin(angle)*7, 12);
-        spawnProjectile(cx, cy, Math.cos(angle + Math.PI/2)*7, Math.sin(angle + Math.PI/2)*7, 12);
-        spawnProjectile(cx, cy, Math.cos(angle + Math.PI)*7, Math.sin(angle + Math.PI)*7, 12);
-        spawnProjectile(cx, cy, Math.cos(angle + Math.PI*1.5)*7, Math.sin(angle + Math.PI*1.5)*7, 12);
-    }
-
-    // --- TRANSITION CLEAR ---
-    if (t === 740) {
-        // Wipes the board clean so Phase 1.1 elements don't overlap with Phase 1.2
-        projectiles = []; 
-        warnings = [];
-    }
-
-    // PHASE 1.2: NEW "Spicy" Pattern (Frames 740 to 1560)
-    if (t > 740 && t < 1560) {
-        // Spicy Element 1: Sine-wave sweepers crossing the screen rapidly from both sides
-        if (t % 8 === 0) {
-            let sweepY = (Math.sin(t * 0.05) * (canvas.height / 2.5)) + (canvas.height / 2);
-            spawnProjectile(0, sweepY, 9, 0, 12); // Left to right
-            spawnProjectile(canvas.width, canvas.height - sweepY, -9, 0, 12); // Right to left
+    // PHASE 1.2: Duality & The Void (Frames 740 to 1600)
+    if (t > 800 && t < 1500) {
+        if (t % 60 === 0) {
+            spawnWarning(p1.x, p1.y, "track", "p1", 0, 30);
+            if (gameMode === 'multiplayer' && p2.active) spawnWarning(p2.x, p2.y, "track", "p2", 0, 30);
         }
-        
-        // Spicy Element 2: Tracker Rings closing in on active players
-        if (t % 100 === 0) {
-            let activePlayers = [p1];
-            if (typeof gameMode !== 'undefined' && gameMode === 'multiplayer' && p2.active) {
-                activePlayers.push(p2);
-            }
-            
-            activePlayers.forEach(player => {
-                // Spawns a wide ring of bullets 400px away that slowly converge on the player's current position
-                for (let i = 0; i < Math.PI * 2; i += Math.PI / 8) {
-                    let startX = player.x + Math.cos(i) * 400;
-                    let startY = player.y + Math.sin(i) * 400;
-                    let angleToPlayer = Math.atan2(player.y - startY, player.x - startX);
-                    spawnProjectile(startX, startY, Math.cos(angleToPlayer) * 4, Math.sin(angleToPlayer) * 4, 15);
-                }
-            });
+        if (t % 15 === 0) {
+            // Raining Wingdings
+            spawnProjectile(Math.random() * canvas.width, -20, 0, 7 + Math.random() * 4, 15, Infinity, false, 'wingding');
+            // Rising Wingdings
+            spawnProjectile(Math.random() * canvas.width, canvas.height + 20, 0, -(7 + Math.random() * 4), 15, Infinity, false, 'wingding');
         }
     }
 
-    // PHASE 1.3: Original Logic Retained (Frames 1560 to 2360)
-    if (t > 1560 && t < 2360) {
-        if (t % 80 === 0) {
-            let dir = Math.random() > 0.5 ? 1 : -1;
-            let startX = dir === 1 ? -50 : canvas.width + 50;
-            let gapY = Math.random() * (canvas.height - 150) + 75;
-            spawnWarning(startX, gapY, "wall_h", dir, 20, 40);
+    if (t === 1560) { projectiles = []; warnings = []; }
+
+    // PHASE 1.3: Shattered Grid (Frames 1560 to 2400)
+    if (t > 1600 && t < 2300) {
+        if (t % 90 === 0) {
+            // Rapid grid lock-on
+            let offset = Math.random() * 100;
+            for(let x = 50 + offset; x < canvas.width; x += 200) spawnWarning(x, 0, "grid_laser_v", 0, 0, 60);
+            for(let y = 50 + offset; y < canvas.height; y += 200) spawnWarning(0, y, "grid_laser_h", 0, 0, 60);
         }
-        if (t % 110 === 0) {
-            let dir = Math.random() > 0.5 ? 1 : -1;
-            let startY = dir === 1 ? -50 : canvas.height + 50;
-            let gap1X = Math.random() * (canvas.width/2 - 100) + 50;
-            let gap2X = Math.random() * (canvas.width/2 - 100) + canvas.width/2 + 50;
-            spawnWarning(gap1X, gap2X, "wall_v", dir, startY, 40);
+        if (t % 40 === 0) {
+            // Bouncing void matter
+            spawnProjectile(Math.random() * canvas.width, Math.random() * canvas.height, (Math.random()-0.5)*10, (Math.random()-0.5)*10, 20, 400, true);
         }
     }
 }
 
 function executePhase2(t) {
-    if (t > 2700 && t < 3600 && t % 5 === 0) {
-        let px = Math.random() * canvas.width;
-        spawnProjectile(px, -30, (Math.random()-0.5)*4, 8 + Math.random()*6, Math.random()*20 + 10);
+    // PHASE 2: Complete Chaos (Frames 2700 to 5400)
+    if (t > 2700 && t < 3500 && t % 5 === 0) {
+        // High-speed Wingding spiral
+        let cx = canvas.width / 2;
+        let cy = canvas.height / 2;
+        let angle = t * 0.3;
+        spawnProjectile(cx, cy, Math.cos(angle)*10, Math.sin(angle)*10, 20, Infinity, false, 'wingding');
+        spawnProjectile(cx, cy, Math.cos(angle + Math.PI/2)*10, Math.sin(angle + Math.PI/2)*10, 20, Infinity, false, 'wingding');
+        spawnProjectile(cx, cy, Math.cos(angle + Math.PI)*10, Math.sin(angle + Math.PI)*10, 20, Infinity, false, 'wingding');
+        spawnProjectile(cx, cy, Math.cos(angle + Math.PI*1.5)*10, Math.sin(angle + Math.PI*1.5)*10, 20, Infinity, false, 'wingding');
     }
-    if (t > 3600 && t < 4500 && t % 45 === 0) {
-        spawnWarning(Math.random() * (canvas.width - 100) + 50, Math.random() * (canvas.height - 100) + 50, "firecracker", 0, 40, 45); 
-        spawnWarning(Math.random() * (canvas.width - 100) + 50, Math.random() * (canvas.height - 100) + 50, "firecracker", 0, 40, 45); 
+
+    if (t > 3600 && t < 4500) {
+        if (t % 45 === 0) {
+            spawnWarning(Math.random() * (canvas.width - 100) + 50, Math.random() * (canvas.height - 100) + 50, "ring", 0, 60, 45); 
+        }
+        if (t % 10 === 0) {
+            spawnProjectile(0, Math.random() * canvas.height, 12, 0, 15, Infinity, false, 'wingding');
+            spawnProjectile(canvas.width, Math.random() * canvas.height, -12, 0, 15, Infinity, false, 'wingding');
+        }
     }
-    if (t > 4500 && t < 5400 && t % 40 === 0) {
-        spawnWarning(Math.random() * canvas.width, Math.random() * canvas.height, "ring", 0, 40, 30);
+
+    if (t > 4500 && t < 5300) {
+        if (t % 60 === 0) {
+            let dir = Math.random() > 0.5 ? 1 : -1;
+            let startX = dir === 1 ? -50 : canvas.width + 50;
+            let gap1Y = p1.y - 100; // Force them to move
+            let gap2Y = p1.y + 100;
+            spawnWarning(startX === -50 ? 50 : canvas.width - 50, gap1Y, dir, "split_wall", gap2Y, 40);
+        }
     }
 }
 
 function executePhase3(t) {
-    if (t > 5700 && t < 6800 && t % 7 === 0) {
-        let edge = Math.floor(Math.random() * 4);
-        let px, py, vx, vy;
-        if(edge === 0) { px=Math.random()*canvas.width; py=-20; vx=(Math.random()-0.5)*6; vy=8; } 
-        if(edge === 1) { px=Math.random()*canvas.width; py=canvas.height+20; vx=(Math.random()-0.5)*6; vy=-8; } 
-        if(edge === 2) { px=-20; py=Math.random()*canvas.height; vx=8; vy=(Math.random()-0.5)*6; } 
-        if(edge === 3) { px=canvas.width+20; py=Math.random()*canvas.height; vx=-8; vy=(Math.random()-0.5)*6; } 
-        spawnProjectile(px, py, vx, vy, Math.random()*12 + 8);
+    // PHASE 3: The Core (Frames 5700 to 9000)
+    if (t > 5700 && t < 6700) {
+        if (t % 20 === 0) {
+            spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 30);
+            if (gameMode === 'multiplayer' && p2.active) spawnWarning(p2.x, p2.y, "firecracker", 0, 50, 30);
+        }
+        if (t % 4 === 0) {
+            // Tight bullet streams
+            spawnProjectile(Math.random() * canvas.width, -20, 0, 15, 12, Infinity, false, 'wingding');
+        }
     }
 
     if (t === 6740) {
         spawnWarning(canvas.width / 2, canvas.height / 2, "middle_line", 0, 40, 60);
     }
 
-    if (t === 6800) {
-        for(let i = 0; i < canvas.width; i += 25) spawnProjectile(i, canvas.height / 2, 0, 0, 15);
+    if (t > 6800 && t < 7800) {
+        if (t % 30 === 0) {
+            spawnWarning(0, 0, "diag_laser_1", 0, 0, 45);
+            spawnWarning(canvas.width, 0, "diag_laser_2", 0, 0, 45);
+        }
+        if (t % 8 === 0) {
+            // Crossfire
+            spawnProjectile(0, p1.y, 14, 0, 15, Infinity, false, 'wingding');
+            spawnProjectile(p1.x, 0, 0, 14, 15, Infinity, false, 'wingding');
+        }
     }
-    if (t > 6800 && t < 7900 && t % 50 === 0) {
-        let dir = Math.random() > 0.5 ? 1 : -1;
-        let startX = dir === 1 ? -50 : canvas.width + 50;
-        let gap1Y = Math.random() * (canvas.height/2 - 100) + 50;
-        let gap2Y = Math.random() * (canvas.height/2 - 100) + canvas.height/2 + 50;
-        spawnWarning(startX === -50 ? 50 : canvas.width - 50, gap1Y, dir, "split_wall", gap2Y, 25);
-    }
-    
-    if (t === 7900) { projectiles = []; warnings = []; }
 
-    if (t > 7960 && t < 9000) {
-        if (t % 20 === 0) {
-            spawnWarning(p1.x, p1.y, "track", "p1", 0, 30);
-            if (gameMode === 'multiplayer' && p2.active) spawnWarning(p2.x, p2.y, "track", "p2", 0, 30);
-            
-            if (t % 40 === 0) spawnProjectile(Math.random()*canvas.width, -20, 0, 10, 15);
-        }
-        if (t % 60 === 0) {
-            let startX1 = Math.random() > 0.5 ? -20 : canvas.width + 20;
-            let startX2 = Math.random() > 0.5 ? -20 : canvas.width + 20;
-            spawnWarning(startX1, Math.random() * canvas.height, "sniper_line", p1.x, p1.y, 45);
-            if (gameMode === 'multiplayer' && p2.active) spawnWarning(startX2, Math.random() * canvas.height, "sniper_line", p2.x, p2.y, 45);
-        }
+    if (t === 7850) { projectiles = []; warnings = []; }
+
+    if (t > 7900 && t < 8900) {
+        // Final Survival - Everything at once
+        if (t % 40 === 0) spawnWarning(Math.random() * canvas.width, Math.random() * canvas.height, "ring", 0, 80, 30);
+        if (t % 50 === 0) spawnWarning(Math.random() > 0.5 ? 50 : canvas.width - 50, Math.random() * canvas.height, "sniper_line", p1.x, p1.y, 40);
+        if (t % 3 === 0) spawnProjectile(Math.random() * canvas.width, -20, (Math.random()-0.5)*4, 12, 18, Infinity, false, 'wingding');
     }
 }
 
@@ -632,8 +623,19 @@ function draw() {
 
     ctx.fillStyle = '#B200FF';
     ctx.shadowBlur = 12; ctx.shadowColor = '#B200FF';
-    for (let p of projectiles) ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
-    ctx.shadowBlur = 0; 
+    for (let p of projectiles) {
+        if (p.type === 'wingding') {
+            // Rapidly switch between uppercase A-Z for the Wingdings font
+            ctx.font = `${p.size * 1.5}px Wingdings, "Courier New"`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            let char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            ctx.fillText(char, p.x, p.y);
+        } else {
+            ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
+        }
+    }
+    ctx.shadowBlur = 0;
 
     for (let w of warnings) {
         let progress = 1 - (w.timer / w.maxTimer);
