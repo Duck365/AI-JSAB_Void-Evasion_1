@@ -247,75 +247,70 @@ window.addEventListener('keyup', (e) => {
 });
 
 function executePhase1(t) {
-    // PHASE 1.1: The Hands Awaken (Frames 0 to 800)
     if (t === 60) {
         spawnWarning(canvas.width / 2, canvas.height / 2, "spinner_warn", 0, 100, 120);
     }
     if (t > 180 && t < 700 && t % 30 === 0) {
-        // Blaster simulations: thick lines sweeping the arena
         let startY = Math.random() > 0.5 ? 50 : canvas.height - 50;
         spawnWarning(50, startY, "sniper_line", canvas.width - 50, canvas.height / 2, 45);
     }
     if (t > 300 && t < 700 && t % 8 === 0) {
-        // Wingding spread from the center
         let angle = (t * 0.1) + Math.sin(t * 0.05);
-        spawnProjectile(canvas.width / 2, canvas.height / 2, Math.cos(angle)*6, Math.sin(angle)*6, 18, Infinity, false, 'wingding');
-        spawnProjectile(canvas.width / 2, canvas.height / 2, Math.cos(angle + Math.PI)*6, Math.sin(angle + Math.PI)*6, 18, Infinity, false, 'wingding');
+        spawnProjectile(canvas.width / 2, canvas.height / 2, Math.cos(angle)*6, Math.sin(angle)*6, 18, 200, false, 'wingding');
+        spawnProjectile(canvas.width / 2, canvas.height / 2, Math.cos(angle + Math.PI)*6, Math.sin(angle + Math.PI)*6, 18, 200, false, 'wingding');
     }
 
     if (t === 740) { projectiles = []; warnings = []; }
 
-    // PHASE 1.2: Duality & The Void (Frames 740 to 1600)
     if (t > 800 && t < 1500) {
-        if (t % 60 === 0) {
-            spawnWarning(p1.x, p1.y, "track", "p1", 0, 30);
-            if (gameMode === 'multiplayer' && p2.active) spawnWarning(p2.x, p2.y, "track", "p2", 0, 30);
-        }
+        if (t % 60 === 0) spawnWarning(p1.x, p1.y, "track", "p1", 0, 30);
         if (t % 15 === 0) {
-            // Raining Wingdings
-            spawnProjectile(Math.random() * canvas.width, -20, 0, 7 + Math.random() * 4, 15, Infinity, false, 'wingding');
-            // Rising Wingdings
-            spawnProjectile(Math.random() * canvas.width, canvas.height + 20, 0, -(7 + Math.random() * 4), 15, Infinity, false, 'wingding');
+            spawnProjectile(Math.random() * canvas.width, -20, 0, 7 + Math.random() * 4, 15, 150, false, 'wingding');
+            spawnProjectile(Math.random() * canvas.width, canvas.height + 20, 0, -(7 + Math.random() * 4), 15, 150, false, 'wingding');
         }
     }
 
     if (t === 1560) { projectiles = []; warnings = []; }
 
-    // PHASE 1.3: Shattered Grid (Frames 1560 to 2400)
     if (t > 1600 && t < 2300) {
         if (t % 90 === 0) {
-            // Rapid grid lock-on
             let offset = Math.random() * 100;
             for(let x = 50 + offset; x < canvas.width; x += 200) spawnWarning(x, 0, "grid_laser_v", 0, 0, 60);
             for(let y = 50 + offset; y < canvas.height; y += 200) spawnWarning(0, y, "grid_laser_h", 0, 0, 60);
         }
         if (t % 40 === 0) {
-            // Bouncing void matter
-            spawnProjectile(Math.random() * canvas.width, Math.random() * canvas.height, (Math.random()-0.5)*10, (Math.random()-0.5)*10, 20, 400, true);
+            // Calibrated to prevent spawning directly on the player
+            let spawnX, spawnY;
+            do {
+                spawnX = Math.random() * canvas.width;
+                spawnY = Math.random() * canvas.height;
+            } while (Math.hypot(spawnX - p1.x, spawnY - p1.y) < 150);
+            spawnProjectile(spawnX, spawnY, (Math.random()-0.5)*10, (Math.random()-0.5)*10, 20, 400, true);
         }
     }
 }
 
 function executePhase2(t) {
-    // PHASE 2: Complete Chaos (Frames 2700 to 5400)
+    if (t === 2640) {
+        // Added center warning for the windmill
+        spawnWarning(canvas.width / 2, canvas.height / 2, "ring", 0, 150, 60);
+    }
+    
     if (t > 2700 && t < 3500 && t % 5 === 0) {
-        // High-speed Wingding spiral
         let cx = canvas.width / 2;
         let cy = canvas.height / 2;
-        let angle = t * 0.3;
-        spawnProjectile(cx, cy, Math.cos(angle)*10, Math.sin(angle)*10, 20, Infinity, false, 'wingding');
-        spawnProjectile(cx, cy, Math.cos(angle + Math.PI/2)*10, Math.sin(angle + Math.PI/2)*10, 20, Infinity, false, 'wingding');
-        spawnProjectile(cx, cy, Math.cos(angle + Math.PI)*10, Math.sin(angle + Math.PI)*10, 20, Infinity, false, 'wingding');
-        spawnProjectile(cx, cy, Math.cos(angle + Math.PI*1.5)*10, Math.sin(angle + Math.PI*1.5)*10, 20, Infinity, false, 'wingding');
+        let angle = t * 0.5; // Increased windmill speed
+        spawnProjectile(cx, cy, Math.cos(angle)*12, Math.sin(angle)*12, 20, 150, false, 'wingding');
+        spawnProjectile(cx, cy, Math.cos(angle + Math.PI/2)*12, Math.sin(angle + Math.PI/2)*12, 20, 150, false, 'wingding');
+        spawnProjectile(cx, cy, Math.cos(angle + Math.PI)*12, Math.sin(angle + Math.PI)*12, 20, 150, false, 'wingding');
+        spawnProjectile(cx, cy, Math.cos(angle + Math.PI*1.5)*12, Math.sin(angle + Math.PI*1.5)*12, 20, 150, false, 'wingding');
     }
 
     if (t > 3600 && t < 4500) {
-        if (t % 45 === 0) {
-            spawnWarning(Math.random() * (canvas.width - 100) + 50, Math.random() * (canvas.height - 100) + 50, "ring", 0, 60, 45); 
-        }
+        if (t % 45 === 0) spawnWarning(Math.random() * (canvas.width - 100) + 50, Math.random() * (canvas.height - 100) + 50, "ring", 0, 60, 45); 
         if (t % 10 === 0) {
-            spawnProjectile(0, Math.random() * canvas.height, 12, 0, 15, Infinity, false, 'wingding');
-            spawnProjectile(canvas.width, Math.random() * canvas.height, -12, 0, 15, Infinity, false, 'wingding');
+            spawnProjectile(0, Math.random() * canvas.height, 12, 0, 15, 150, false, 'wingding');
+            spawnProjectile(canvas.width, Math.random() * canvas.height, -12, 0, 15, 150, false, 'wingding');
         }
     }
 
@@ -323,49 +318,44 @@ function executePhase2(t) {
         if (t % 60 === 0) {
             let dir = Math.random() > 0.5 ? 1 : -1;
             let startX = dir === 1 ? -50 : canvas.width + 50;
-            let gap1Y = p1.y - 100; // Force them to move
-            let gap2Y = p1.y + 100;
-            spawnWarning(startX === -50 ? 50 : canvas.width - 50, gap1Y, dir, "split_wall", gap2Y, 40);
+            spawnWarning(startX === -50 ? 50 : canvas.width - 50, p1.y - 100, dir, "split_wall", p1.y + 100, 40);
+        }
+        if (t % 90 === 0) {
+            // Added sniper tracking to make Phase 2.3 harder
+            spawnWarning(canvas.width / 2, canvas.height / 2, "sniper_line", p1.x, p1.y, 45);
         }
     }
 }
 
 function executePhase3(t) {
-    // PHASE 3: The Core (Frames 5700 to 9000)
     if (t > 5700 && t < 6700) {
-        if (t % 20 === 0) {
-            spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 30);
-            if (gameMode === 'multiplayer' && p2.active) spawnWarning(p2.x, p2.y, "firecracker", 0, 50, 30);
-        }
-        if (t % 4 === 0) {
-            // Tight bullet streams
-            spawnProjectile(Math.random() * canvas.width, -20, 0, 15, 12, Infinity, false, 'wingding');
+        if (t % 30 === 0) spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 40);
+        if (t % 10 === 0) {
+            // Slower, less dense rain so no-hitting is possible
+            spawnProjectile(Math.random() * canvas.width, -20, 0, 8, 12, 150, false, 'wingding');
         }
     }
 
-    if (t === 6740) {
-        spawnWarning(canvas.width / 2, canvas.height / 2, "middle_line", 0, 40, 60);
-    }
+    if (t === 6740) spawnWarning(canvas.width / 2, canvas.height / 2, "middle_line", 0, 40, 60);
 
     if (t > 6800 && t < 7800) {
         if (t % 30 === 0) {
             spawnWarning(0, 0, "diag_laser_1", 0, 0, 45);
             spawnWarning(canvas.width, 0, "diag_laser_2", 0, 0, 45);
         }
-        if (t % 8 === 0) {
-            // Crossfire
-            spawnProjectile(0, p1.y, 14, 0, 15, Infinity, false, 'wingding');
-            spawnProjectile(p1.x, 0, 0, 14, 15, Infinity, false, 'wingding');
+        if (t % 12 === 0) {
+            // Spacing out crossfire and adding life limits to kill lag
+            spawnProjectile(0, p1.y, 14, 0, 15, 150, false, 'wingding');
+            spawnProjectile(p1.x, 0, 0, 14, 15, 150, false, 'wingding');
         }
     }
 
     if (t === 7850) { projectiles = []; warnings = []; }
 
     if (t > 7900 && t < 8900) {
-        // Final Survival - Everything at once
         if (t % 40 === 0) spawnWarning(Math.random() * canvas.width, Math.random() * canvas.height, "ring", 0, 80, 30);
         if (t % 50 === 0) spawnWarning(Math.random() > 0.5 ? 50 : canvas.width - 50, Math.random() * canvas.height, "sniper_line", p1.x, p1.y, 40);
-        if (t % 3 === 0) spawnProjectile(Math.random() * canvas.width, -20, (Math.random()-0.5)*4, 12, 18, Infinity, false, 'wingding');
+        if (t % 6 === 0) spawnProjectile(Math.random() * canvas.width, -20, (Math.random()-0.5)*4, 12, 18, 150, false, 'wingding');
     }
 }
 
@@ -625,11 +615,12 @@ function draw() {
     ctx.shadowBlur = 12; ctx.shadowColor = '#B200FF';
     for (let p of projectiles) {
         if (p.type === 'wingding') {
-            // Rapidly switch between uppercase A-Z for the Wingdings font
             ctx.font = `${p.size * 1.5}px Wingdings, "Courier New"`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            let char = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            // Slows down the flicker and offsets it based on the bullet's position
+            let charOffset = (Math.floor(frameCount / 10) + Math.floor(p.x + p.y)) % 26;
+            let char = String.fromCharCode(65 + Math.abs(charOffset));
             ctx.fillText(char, p.x, p.y);
         } else {
             ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
