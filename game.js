@@ -678,11 +678,12 @@ function draw() {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // Generate a static unique offset for each bullet based on its velocity and size
-            let uniqueSeed = Math.abs(Math.floor((p.vx * 17) + (p.vy * 23) + p.size));
+            // Generate a static unique offset for each bullet
+            let uniqueSeed = Math.abs(Math.floor((p.vx * 17) + (p.vy * 23) + (p.size * 13)));
             
-            // Divisor of 15 equals changing roughly every 0.25 seconds at 60 FPS
-            let charOffset = (Math.floor(frameCount / 15) + uniqueSeed) % 26;
+            // Divisor of 7 equals ~1/8th of a second.
+            // Adding the seed INSIDE the division desyncs the exact frame each bullet updates!
+            let charOffset = Math.floor((frameCount + uniqueSeed) / 7) % 26;
             let char = String.fromCharCode(65 + charOffset);
             
             ctx.fillText(char, p.x, p.y);
