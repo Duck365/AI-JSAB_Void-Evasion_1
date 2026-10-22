@@ -677,9 +677,14 @@ function draw() {
             ctx.font = `${p.size * 1.5}px Wingdings, "Courier New"`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            // Character changes exactly every 30 frames without coordinate interference
-            let charOffset = Math.floor(frameCount / 30) % 26;
+            
+            // Generate a static unique offset for each bullet based on its velocity and size
+            let uniqueSeed = Math.abs(Math.floor((p.vx * 17) + (p.vy * 23) + p.size));
+            
+            // Divisor of 15 equals changing roughly every 0.25 seconds at 60 FPS
+            let charOffset = (Math.floor(frameCount / 15) + uniqueSeed) % 26;
             let char = String.fromCharCode(65 + charOffset);
+            
             ctx.fillText(char, p.x, p.y);
         } else {
             ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
