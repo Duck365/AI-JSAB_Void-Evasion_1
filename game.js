@@ -357,8 +357,12 @@ function executePhase2(t) {
 }
 
 function executePhase3(t) {
+    // PHASE 3.1
     if (t > 5700 && t < 6700) {
-        if (t % 30 === 0) spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 40);
+        if (t % 30 === 0) {
+            spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 40);
+            if (typeof p2 !== 'undefined' && p2.active) spawnWarning(p2.x, p2.y, "firecracker", 0, 50, 40);
+        }
         if (t % 10 === 0) {
             spawnProjectile(Math.random() * canvas.width, -20, 0, 8, 12, 150, false, 'wingding');
         }
@@ -368,10 +372,16 @@ function executePhase3(t) {
     
     if (t === 6790) { projectiles = []; warnings = []; }
 
+    // PHASE 3.2
     if (t > 6800 && t < 7800) {
         if (t % 90 === 0) {
             spawnWarning(50, 50, "sniper_line", p1.x, p1.y, 60);
             spawnWarning(canvas.width - 50, canvas.height - 50, "sniper_line", p1.x, p1.y, 60);
+            if (typeof p2 !== 'undefined' && p2.active) {
+                // Cross-map snipers for P2 to keep pressure balanced
+                spawnWarning(50, canvas.height - 50, "sniper_line", p2.x, p2.y, 60);
+                spawnWarning(canvas.width - 50, 50, "sniper_line", p2.x, p2.y, 60);
+            }
         }
         
         if (t % 120 === 0) {
@@ -388,6 +398,7 @@ function executePhase3(t) {
 
     if (t === 7850) { projectiles = []; warnings = []; }
 
+    // PHASE 3.3
     if (t > 7900 && t < 8900) {
         if (t % 90 === 0) {
             spawnWarning(150, 150, "ring", 0, 80, 45);
@@ -395,6 +406,9 @@ function executePhase3(t) {
         }
         if (t % 60 === 0) {
             spawnWarning(canvas.width / 2, 50, "sniper_line", p1.x, p1.y, 40);
+            if (typeof p2 !== 'undefined' && p2.active) {
+                spawnWarning(canvas.width / 2, canvas.height - 50, "sniper_line", p2.x, p2.y, 40);
+            }
         }
         if (t % 15 === 0) {
             let sweepX = (t % 300) / 300 * canvas.width;
@@ -663,9 +677,9 @@ function draw() {
             ctx.font = `${p.size * 1.5}px Wingdings, "Courier New"`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            // Increased divisor from 10 to 30 for a much slower flicker
-            let charOffset = (Math.floor(frameCount / 30) + Math.floor(p.x + p.y)) % 26;
-            let char = String.fromCharCode(65 + Math.abs(charOffset));
+            // Character changes exactly every 30 frames without coordinate interference
+            let charOffset = Math.floor(frameCount / 30) % 26;
+            let char = String.fromCharCode(65 + charOffset);
             ctx.fillText(char, p.x, p.y);
         } else {
             ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
