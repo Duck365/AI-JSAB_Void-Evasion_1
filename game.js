@@ -262,7 +262,6 @@ function executePhase1(t) {
     if (t === 740) { projectiles = []; warnings = []; }
 
     if (t > 800 && t < 1500) {
-        // Multiplayer fix: Target both active players
         if (t % 60 === 0) {
             spawnWarning(p1.x, p1.y, "track", "p1", 0, 30);
             if (typeof p2 !== 'undefined' && p2.active) spawnWarning(p2.x, p2.y, "track", "p2", 0, 30);
@@ -313,29 +312,25 @@ function executePhase1(t) {
 function executePhase2(t) {
     if (t === 2640) spawnWarning(canvas.width / 2, canvas.height / 2, "ring", 0, 150, 60);
     
-    // PHASE 2.1: Solid, sweeping lines
-    if (t > 2700 && t < 3500 && t % 2 === 0) { // Spawning every 2 frames creates a solid line
+    if (t > 2700 && t < 3500 && t % 2 === 0) { 
         let cx = canvas.width / 2;
         let cy = canvas.height / 2;
-        let angle = t * 0.035; // Smooth rotation, slightly faster than the very original
+        let angle = t * 0.035; 
         spawnProjectile(cx, cy, Math.cos(angle)*12, Math.sin(angle)*12, 20, 150, false, 'wingding');
         spawnProjectile(cx, cy, Math.cos(angle + Math.PI/2)*12, Math.sin(angle + Math.PI/2)*12, 20, 150, false, 'wingding');
         spawnProjectile(cx, cy, Math.cos(angle + Math.PI)*12, Math.sin(angle + Math.PI)*12, 20, 150, false, 'wingding');
         spawnProjectile(cx, cy, Math.cos(angle + Math.PI*1.5)*12, Math.sin(angle + Math.PI*1.5)*12, 20, 150, false, 'wingding');
     }
 
-    // PHASE 2.2: Removed RNG, added sweeping predictable patterns
     if (t > 3600 && t < 4500) {
         if (t % 60 === 0) spawnWarning(canvas.width / 2, canvas.height / 2, "ring", 0, 80, 45); 
         if (t % 15 === 0) {
-            // Predictable horizontal sweeps instead of random heights
             let sweepY = (t % 180) / 180 * canvas.height;
             spawnProjectile(0, sweepY, 10, 0, 15, 150, false, 'wingding');
             spawnProjectile(canvas.width, canvas.height - sweepY, -10, 0, 15, 150, false, 'wingding');
         }
     }
 
-    // PHASE 2.3
     if (t > 4500 && t < 5300) {
         if (t % 60 === 0) {
             let dir = Math.random() > 0.5 ? 1 : -1;
@@ -360,22 +355,8 @@ function executePhase2(t) {
         }
     }
 }
-    // TRANSITION 2: Closing Walls (Frames 5350 to 5650)
-    if (t === 5350) { projectiles = []; warnings = []; }
-    if (t > 5400 && t < 5600) {
-        if (t % 40 === 0) {
-            // Lasers slowly pinch the player toward the center
-            let offset = (t - 5400) / 2;
-            spawnWarning(offset, 0, "grid_laser_v", 0, 0, 40);
-            spawnWarning(canvas.width - offset, 0, "grid_laser_v", 0, 0, 40);
-            spawnWarning(0, offset, "grid_laser_h", 0, 0, 40);
-            spawnWarning(0, canvas.height - offset, "grid_laser_h", 0, 0, 40);
-        }
-    }
-}
 
 function executePhase3(t) {
-    // PHASE 3.1 (Frames 5700 to 6700)
     if (t > 5700 && t < 6700) {
         if (t % 30 === 0) spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 40);
         if (t % 10 === 0) {
@@ -387,32 +368,26 @@ function executePhase3(t) {
     
     if (t === 6790) { projectiles = []; warnings = []; }
 
-    // REDESIGNED PHASE 3.2: Tracking Blasters & Expanding Void (Frames 6800 to 7800)
-    // Completely rebuilt to avoid massive overlapping diagonal lasers that caused rendering lag.
     if (t > 6800 && t < 7800) {
         if (t % 90 === 0) {
-            // Precise cross-map snipers that force the player to keep moving
             spawnWarning(50, 50, "sniper_line", p1.x, p1.y, 60);
             spawnWarning(canvas.width - 50, canvas.height - 50, "sniper_line", p1.x, p1.y, 60);
         }
         
         if (t % 120 === 0) {
-            // Expanding rings of Wingdings from random zones
             let cx = Math.random() * (canvas.width - 200) + 100;
             let cy = Math.random() * (canvas.height - 200) + 100;
             spawnWarning(cx, cy, "ring", 0, 100, 45);
-            // Spawn ring exactly when warning finishes
             setTimeout(() => {
                 for (let i = 0; i < Math.PI * 2; i += Math.PI / 4) {
                     spawnProjectile(cx, cy, Math.cos(i) * 6, Math.sin(i) * 6, 18, 200, false, 'wingding');
                 }
-            }, 45 * (1000/60)); // Approximate frame timing 
+            }, 45 * (1000/60));
         }
     }
 
     if (t === 7850) { projectiles = []; warnings = []; }
 
-    // PHASE 3.3 (Frames 7900 to 8900)
     if (t > 7900 && t < 8900) {
         if (t % 90 === 0) {
             spawnWarning(150, 150, "ring", 0, 80, 45);
