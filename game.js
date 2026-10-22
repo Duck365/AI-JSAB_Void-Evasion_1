@@ -290,7 +290,13 @@ function executePhase1(t) {
         }
     }
 
+    // TRANSITION 1
     if (t === 2350) { projectiles = []; warnings = []; }
+    
+    if (t === 2360) {
+        // Warning added right before the attack starts at 2400
+        spawnWarning(canvas.width / 2, canvas.height / 2, "ring", 0, 100, 40);
+    }
     
     if (t > 2400 && t < 2600) {
         if (t % 60 === 0) {
