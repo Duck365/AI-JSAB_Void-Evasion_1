@@ -91,6 +91,11 @@ function setPlayerColor(playerNum, color) {
     updateColorButtons();
 }
 
+function matchP1Color() {
+    let p1Color = (typeof p1 !== 'undefined' && p1.color) ? p1.color : (player1Color || '#00FFFF');
+    setPlayerColor(2, p1Color);
+}
+
 function updateColorButtons() {
     document.querySelectorAll('#p1-color-grid .color-btn').forEach(btn => {
         if (btn.dataset.color === p2Color) btn.classList.add('disabled');
@@ -950,13 +955,14 @@ function gameWon() {
     gameActive = false; cancelAnimationFrame(animationId);
     let challengeText = challengeMode !== 'none' ? ` Challenge - ${challengeMode.charAt(0).toUpperCase() + challengeMode.slice(1)}` : '';
 
-    // Safely calculate the precise Remaining HP format based on hits taken
+    // Safely calculate Remaining HP format based on hits taken and starting max HP
     let hpText = "";
     if (!isMagneticMode && gameMode !== 'multiplayer') {
         let maxHpMap = { 'Easy': 10, 'Normal': 8, 'Hard': 5, 'Hardcore': 1 };
-        let maxHp = maxHpMap[currentDifficulty];
+        // Use standard difficulty HP map, or fall back to custom HP setting if set
+        let maxHp = maxHpMap[currentDifficulty] || (typeof customHpValue !== 'undefined' ? customHpValue : undefined);
         
-        if (maxHp !== undefined) {
+        if (maxHp !== undefined && maxHp > 0) {
             let hits = (typeof p1 !== 'undefined' && typeof p1.hitsTaken !== 'undefined') ? p1.hitsTaken : 0;
             let currentHp = Math.max(0, maxHp - hits);
             hpText = ` | Remaining HP: ${currentHp}/${maxHp}`;
