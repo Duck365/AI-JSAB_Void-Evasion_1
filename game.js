@@ -119,7 +119,11 @@ function spawnWarning(x, y, vx, vy, size, delayTimer) {
 
 function setupMode(mode, phase = '1') {
     isMagneticMode = false;
-    if (mode === 'invisible' || mode === 'bullet-colored') {
+    
+    // List all current and future challenge modes here!
+    const challengeModes = ['invisible', 'bullet-colored', 'adhd', 'no-teleport', 'one-signal', 'bullet-lover'];
+    
+    if (challengeModes.includes(mode)) {
         gameMode = 'full';
         challengeMode = mode;
     } else {
