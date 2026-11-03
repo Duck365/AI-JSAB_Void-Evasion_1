@@ -92,8 +92,9 @@ function setPlayerColor(playerNum, color) {
 }
 
 function matchP1Color() {
-    let p1Color = (typeof p1 !== 'undefined' && p1.color) ? p1.color : (player1Color || '#00FFFF');
-    setPlayerColor(2, p1Color);
+    // Read the exact hex color directly from the P1 text display in the menu!
+    let p1ColorText = document.getElementById('p1-color-text').innerText;
+    setPlayerColor(2, p1ColorText);
 }
 
 function updateColorButtons() {
@@ -959,10 +960,17 @@ function gameWon() {
     let hpText = "";
     if (!isMagneticMode && gameMode !== 'multiplayer') {
         let maxHpMap = { 'Easy': 10, 'Normal': 8, 'Hard': 5, 'Hardcore': 1 };
-        // Use standard difficulty HP map, or fall back to custom HP setting if set
-        let maxHp = maxHpMap[currentDifficulty] || (typeof customHpValue !== 'undefined' ? customHpValue : undefined);
+        let maxHp = maxHpMap[currentDifficulty];
         
-        if (maxHp !== undefined && maxHp > 0) {
+        // FOOLPROOF CUSTOM HP CHECK: Pull directly from the Custom HP input box!
+        if (maxHp === undefined && currentDifficulty.includes('Custom')) {
+            let customVal = parseInt(document.getElementById('custom-hp-input').value);
+            if (!isNaN(customVal) && customVal > 0) {
+                maxHp = customVal;
+            }
+        }
+        
+        if (maxHp !== undefined && !isNaN(maxHp) && maxHp > 0) {
             let hits = (typeof p1 !== 'undefined' && typeof p1.hitsTaken !== 'undefined') ? p1.hitsTaken : 0;
             let currentHp = Math.max(0, maxHp - hits);
             hpText = ` | Remaining HP: ${currentHp}/${maxHp}`;
@@ -973,7 +981,7 @@ function gameWon() {
         document.getElementById('victory-title').innerText = "PHASE CLEARED";
         let baseText = `Phase ${selectedPracticePhase} Practice${challengeText}, ${currentDifficulty}`;
         
-        // Only append HP remaining if it's a full phase (e.g. '1' instead of '1.1')
+        // Only append HP remaining if it's a full phase
         if (!selectedPracticePhase.includes('.')) {
             baseText += hpText;
         }
