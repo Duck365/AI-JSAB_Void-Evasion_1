@@ -204,9 +204,17 @@ function startCustomGame() {
     startGame(hp, 'Custom HP');
 }
 
+window.activeKeyOrder = window.activeKeyOrder || [];
+
 window.addEventListener('keydown', (e) => {
     keys[e.key] = true;
     keys[e.code] = true; 
+    
+    // --- ONE SIGNAL MODE TRACKING ---
+    // Push the newest key code to the very front of the array
+    if (!window.activeKeyOrder.includes(e.code)) {
+        window.activeKeyOrder.unshift(e.code); 
+    }
     
     if (e.key === 'p' || e.key === 'P') {
         if (gameActive) {
@@ -255,6 +263,12 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
     keys[e.key] = false;
     keys[e.code] = false;
+    
+    // --- ONE SIGNAL MODE TRACKING ---
+    // Remove the key when it is released
+    if (window.activeKeyOrder) {
+        window.activeKeyOrder = window.activeKeyOrder.filter(k => k !== e.code);
+    }
 });
 
 function executePhase1(t) {
@@ -898,6 +912,17 @@ function draw() {
         
         ctx.fillText(`Magnetic hits taken: ${magneticHits}`, canvas.width / 2, 30);
         ctx.fillText(`Time to touch: ${(magneticTimer / 60).toFixed(1)}s`, canvas.width / 2, 50);
+    }
+
+    // --- NEW ADHD TIMER HUD ---
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'adhd') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '16px Courier New';
+        ctx.textAlign = 'center';
+        
+        // Calculate remaining time before damage (60 frames = 1 second)
+        let timeLeft = Math.max(0, (60 - (p1.idleTimer || 0)) / 60).toFixed(1);
+        ctx.fillText(`ADHD Idle Limit: ${timeLeft}s`, canvas.width / 2, 30);
     }
 
     ctx.textAlign = 'center';
