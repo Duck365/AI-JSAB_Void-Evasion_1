@@ -76,14 +76,14 @@ function showScreen(screenId) {
     }
 }
 
-function setPlayerColor(playerNum, color) {
+function setPlayerColor(playerNum, color, force = false) {
     if (playerNum === 1) {
-        if (color === p2Color) return; // Prevent picking P2's color
+        if (!force && color === p2Color) return; // Prevent picking P2's color unless forced
         p1Color = color;
         document.getElementById('p1-color-text').textContent = color;
         document.getElementById('p1-color-text').style.color = color;
     } else {
-        if (color === p1Color) return; // Prevent picking P1's color
+        if (!force && color === p1Color) return; // Prevent picking P1's color unless forced
         p2Color = color;
         document.getElementById('p2-color-text').textContent = color;
         document.getElementById('p2-color-text').style.color = color;
@@ -94,7 +94,8 @@ function setPlayerColor(playerNum, color) {
 function matchP1Color() {
     // Read the exact hex color directly from the P1 text display in the menu!
     let p1ColorText = document.getElementById('p1-color-text').innerText;
-    setPlayerColor(2, p1ColorText);
+    // We pass "true" at the end to FORCE the color change, ignoring the safety lock!
+    setPlayerColor(2, p1ColorText, true);
 }
 
 function updateColorButtons() {
