@@ -544,8 +544,32 @@ function updatePlayer(player, keysArr) {
 
     if (player.dashCooldown > 0) player.dashCooldown--;
     if (player.isInvulnerable > 0) player.isInvulnerable--;
-}
 
+    // --- ADHD MODE LOGIC ---
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'adhd') {
+        if (typeof player.idleTimer === 'undefined') player.idleTimer = 0;
+        
+        // Check if the player is pressing ANY movement key or the dash key (handles multiple possible key names just in case)
+        let isPressingKey = keysArr.up || keysArr.down || keysArr.left || keysArr.right || keysArr.dash || keysArr.space || keysArr.shift;
+        
+        if (isPressingKey) {
+            player.idleTimer = 0; // Undertale rules: Holding a key against a wall resets the timer!
+        } else {
+            player.idleTimer++;
+            if (player.idleTimer >= 60) { // 60 frames = 1 second of standing still
+                
+                // Deal damage if they aren't currently invulnerable from a recent hit
+                if (player.isInvulnerable <= 0) {
+                    player.hp--;
+                    player.hitsTaken++;
+                    player.isInvulnerable = 30; // Give standard i-frames so they don't get double-tapped instantly
+                }
+                
+                player.idleTimer = 0; // Reset the idle timer after it strikes them
+            }
+        }
+    }
+}
 function update() {
     if (!gameActive || isPaused) return;
 
