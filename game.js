@@ -545,11 +545,36 @@ function updatePlayer(player, keysArr) {
     if (!player.active) return;
     
     let dx = 0; let dy = 0;
-    if (keysArr.up) dy -= 1;
-    if (keysArr.down) dy += 1;
-    if (keysArr.left) dx -= 1;
-    if (keysArr.right) dx += 1;
 
+    // --- ONE SIGNAL MODE LOGIC ---
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'one-signal' && window.activeKeyOrder) {
+        let activeDir;
+        if (player === p1) {
+            // Find the most recent key pressed in the array that belongs to P1
+            activeDir = window.activeKeyOrder.find(code => ['ArrowUp', 'KeyW', 'ArrowDown', 'KeyS', 'ArrowLeft', 'KeyA', 'ArrowRight', 'KeyD'].includes(code));
+            
+            if (activeDir === 'ArrowUp' || activeDir === 'KeyW') dy -= 1;
+            else if (activeDir === 'ArrowDown' || activeDir === 'KeyS') dy += 1;
+            else if (activeDir === 'ArrowLeft' || activeDir === 'KeyA') dx -= 1;
+            else if (activeDir === 'ArrowRight' || activeDir === 'KeyD') dx += 1;
+        } else if (typeof p2 !== 'undefined' && player === p2) {
+            // Find the most recent key pressed in the array that belongs to P2
+            activeDir = window.activeKeyOrder.find(code => ['KeyW', 'KeyS', 'KeyA', 'KeyD'].includes(code));
+            
+            if (activeDir === 'KeyW') dy -= 1;
+            else if (activeDir === 'KeyS') dy += 1;
+            else if (activeDir === 'KeyA') dx -= 1;
+            else if (activeDir === 'KeyD') dx += 1;
+        }
+    } else {
+        // Normal movement
+        if (keysArr.up) dy -= 1;
+        if (keysArr.down) dy += 1;
+        if (keysArr.left) dx -= 1;
+        if (keysArr.right) dx += 1;
+    }
+
+    // Normalize diagonal movement speed (only applies outside of One Signal)
     if (dx !== 0 && dy !== 0) {
         let length = Math.sqrt(dx*dx + dy*dy);
         dx /= length; dy /= length;
@@ -567,27 +592,24 @@ function updatePlayer(player, keysArr) {
     if (typeof challengeMode !== 'undefined' && challengeMode === 'adhd') {
         if (typeof player.idleTimer === 'undefined') player.idleTimer = 0;
         
-        // Check if the player is pressing ANY movement key or the dash key (handles multiple possible key names just in case)
         let isPressingKey = keysArr.up || keysArr.down || keysArr.left || keysArr.right || keysArr.dash || keysArr.space || keysArr.shift;
         
         if (isPressingKey) {
-            player.idleTimer = 0; // Undertale rules: Holding a key against a wall resets the timer!
+            player.idleTimer = 0; 
         } else {
             player.idleTimer++;
-            if (player.idleTimer >= 60) { // 60 frames = 1 second of standing still
-                
-                // Deal damage if they aren't currently invulnerable from a recent hit
+            if (player.idleTimer >= 60) {
                 if (player.isInvulnerable <= 0) {
-                    player.hp--;
+                    if (typeof player.hp !== 'undefined') player.hp--;
                     player.hitsTaken++;
-                    player.isInvulnerable = 30; // Give standard i-frames so they don't get double-tapped instantly
+                    player.isInvulnerable = 30; 
                 }
-                
-                player.idleTimer = 0; // Reset the idle timer after it strikes them
+                player.idleTimer = 0; 
             }
         }
     }
 }
+
 function update() {
     if (!gameActive || isPaused) return;
 
