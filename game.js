@@ -663,6 +663,35 @@ function update() {
         }
     }
 
+    // --- BULLET MODE TAG LOGIC ---
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && typeof p1 !== 'undefined' && p1.active && typeof p2 !== 'undefined' && p2.active) {
+        if (typeof tagCooldown === 'undefined') window.tagCooldown = 0;
+        if (tagCooldown > 0) tagCooldown--;
+
+        let dx = p1.x - p2.x;
+        let dy = p1.y - p2.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        // If they touch and the cooldown is ready
+        if (dist < (p1.size / 2 + p2.size / 2) && tagCooldown <= 0) {
+            // Swap Speeds
+            let tempSpeed = p1.speed;
+            p1.speed = p2.speed;
+            p2.speed = tempSpeed;
+
+            // Swap Dash Cooldowns
+            let tempDash = p1.maxDashCooldown;
+            p1.maxDashCooldown = p2.maxDashCooldown;
+            p2.maxDashCooldown = tempDash;
+
+            // Swap who is the Bullet
+            currentBullet = (currentBullet === 'p1') ? 'p2' : 'p1';
+            
+            tagCooldown = 60; // 1 second cooldown before another tag
+        }
+    }
+    // -----------------------------
+
     for (let i = warnings.length - 1; i >= 0; i--) {
         let w = warnings[i];
         w.timer--;
