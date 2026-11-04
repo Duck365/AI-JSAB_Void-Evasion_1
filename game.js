@@ -35,6 +35,9 @@ let challengeMode = 'none'; // 'none', 'invisible', 'bullet-colored'
 let selectedPracticePhase = '1';
 let currentHpSetting = 5;
 
+let currentBullet = 'p1';
+let tagCooldown = 0;
+
 // Input tracking
 const keys = {};
 
@@ -272,6 +275,12 @@ window.addEventListener('keyup', (e) => {
 });
 
 function executePhase1(t) {
+    if (t === 1 && typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
+        currentBullet = 'p1';
+        p1.speed = 7.5; p1.maxDashCooldown = 30; // Bullet stats
+        p2.speed = 3.5; p2.maxDashCooldown = 120; // Normal stats
+    }
+    
     if (t === 60) spawnWarning(canvas.width / 2, canvas.height / 2, "spinner_warn", 0, 100, 120);
     
     if (t > 180 && t < 700 && t % 30 === 0) {
@@ -350,6 +359,12 @@ function executePhase1(t) {
 }
 
 function executePhase2(t) {
+    if (t === 2640 && typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
+        currentBullet = 'p2'; // Swap to P2 for Phase 2
+        p2.speed = 7.5; p2.maxDashCooldown = 30; 
+        p1.speed = 3.5; p1.maxDashCooldown = 120; 
+    }
+    
     if (t === 2640) spawnWarning(canvas.width / 2, canvas.height / 2, "ring", 0, 150, 60);
     
     // 3-Layer Burst at the exact start of Phase 2.1
@@ -435,6 +450,12 @@ function executePhase2(t) {
 }
 
 function executePhase3(t) {
+    if (t === 5700 && typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
+        currentBullet = 'p1'; // Swap back to P1 for Phase 3
+        p1.speed = 7.5; p1.maxDashCooldown = 30; 
+        p2.speed = 3.5; p2.maxDashCooldown = 120; 
+    }
+    
     if (t > 5700 && t < 6700) {
         let isCoop = typeof p2 !== 'undefined' && p2.active;
         
@@ -935,7 +956,34 @@ function draw() {
         ctx.fillText(`Magnetic hits taken: ${magneticHits}`, canvas.width / 2, 30);
         ctx.fillText(`Time to touch: ${(magneticTimer / 60).toFixed(1)}s`, canvas.width / 2, 50);
     }
+    
+    // --- BULLET MODE TAG LOGIC ---
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && p1.active && p2.active) {
+        if (tagCooldown > 0) tagCooldown--;
 
+        let dx = p1.x - p2.x;
+        let dy = p1.y - p2.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        // If they touch and the cooldown is ready
+        if (dist < (p1.size / 2 + p2.size / 2) && tagCooldown <= 0) {
+            // Swap Speeds
+            let tempSpeed = p1.speed;
+            p1.speed = p2.speed;
+            p2.speed = tempSpeed;
+
+            // Swap Dash Cooldowns
+            let tempDash = p1.maxDashCooldown;
+            p1.maxDashCooldown = p2.maxDashCooldown;
+            p2.maxDashCooldown = tempDash;
+
+            // Swap who is the Bullet
+            currentBullet = (currentBullet === 'p1') ? 'p2' : 'p1';
+            
+            tagCooldown = 60; // 1 second cooldown before another tag
+        }
+    }
+    
     // --- NEW ADHD TIMER HUD ---
     if (typeof challengeMode !== 'undefined' && challengeMode === 'adhd') {
         ctx.fillStyle = '#FFFFFF';
