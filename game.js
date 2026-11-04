@@ -35,8 +35,8 @@ let challengeMode = 'none'; // 'none', 'invisible', 'bullet-colored'
 let selectedPracticePhase = '1';
 let currentHpSetting = 5;
 
-let currentBullet = 'p1';
-let tagCooldown = 0;
+let bulletStartingPlayer = 'p1';
+let currentBullet = 'none';
 
 // Input tracking
 const keys = {};
@@ -123,12 +123,17 @@ function spawnWarning(x, y, vx, vy, size, delayTimer) {
 function setupMode(mode, phase = '1') {
     isMagneticMode = false;
     
-    // List all current and future challenge modes here!
-    const challengeModes = ['invisible', 'bullet-colored', 'adhd', 'no-teleport', 'one-signal', 'bullet-lover'];
+    // Added 'bullet' to the array below
+    const challengeModes = ['invisible', 'bullet-colored', 'adhd', 'no-teleport', 'one-signal', 'bullet-lover', 'bullet'];
     
     if (challengeModes.includes(mode)) {
         gameMode = 'full';
         challengeMode = mode;
+
+        if (mode === 'bullet') {
+            currentBullet = bulletStartingPlayer;
+            bulletStartingPlayer = (bulletStartingPlayer === 'p1') ? 'p2' : 'p1';
+        }
     } else {
         gameMode = mode;
         challengeMode = 'none';
@@ -275,10 +280,11 @@ window.addEventListener('keyup', (e) => {
 });
 
 function executePhase1(t) {
-    if (t === 1 && typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
-        currentBullet = 'p1';
-        p1.speed = 7.5; p1.maxDashCooldown = 30; // Bullet stats
-        p2.speed = 3.5; p2.maxDashCooldown = 120; // Normal stats
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
+        if (t === 1) currentBullet = bulletStartingPlayer; // Phase 1.1
+        if (t === 800) currentBullet = (bulletStartingPlayer === 'p1') ? 'p2' : 'p1'; // Phase 1.2
+        if (t === 1600) currentBullet = bulletStartingPlayer; // Phase 1.3
+        if (t === 2360) currentBullet = (bulletStartingPlayer === 'p1') ? 'p2' : 'p1'; // Rotating Gauntlet
     }
     
     if (t === 60) spawnWarning(canvas.width / 2, canvas.height / 2, "spinner_warn", 0, 100, 120);
@@ -359,10 +365,11 @@ function executePhase1(t) {
 }
 
 function executePhase2(t) {
-    if (t === 2640 && typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
-        currentBullet = 'p2'; // Swap to P2 for Phase 2
-        p2.speed = 7.5; p2.maxDashCooldown = 30; 
-        p1.speed = 3.5; p1.maxDashCooldown = 120; 
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
+        if (t === 2640) currentBullet = (bulletStartingPlayer === 'p1') ? 'p2' : 'p1'; // Phase 2.1 (Carried over)
+        if (t === 2700) currentBullet = bulletStartingPlayer; // Phase 2.2
+        if (t === 4500) currentBullet = (bulletStartingPlayer === 'p1') ? 'p2' : 'p1'; // Phase 2.3
+        if (t === 5400) currentBullet = bulletStartingPlayer; // Pendulum Sweep
     }
     
     if (t === 2640) spawnWarning(canvas.width / 2, canvas.height / 2, "ring", 0, 150, 60);
@@ -450,10 +457,10 @@ function executePhase2(t) {
 }
 
 function executePhase3(t) {
-    if (t === 5700 && typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
-        currentBullet = 'p1'; // Swap back to P1 for Phase 3
-        p1.speed = 7.5; p1.maxDashCooldown = 30; 
-        p2.speed = 3.5; p2.maxDashCooldown = 120; 
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
+        if (t === 5700) currentBullet = bulletStartingPlayer; // Phase 3.1 (Carried over)
+        if (t === 6800) currentBullet = (bulletStartingPlayer === 'p1') ? 'p2' : 'p1'; // Phase 3.2
+        if (t === 7900) currentBullet = 'none'; // Phase 3.3 (Both vulnerable)
     }
     
     if (t > 5700 && t < 6700) {
@@ -882,8 +889,22 @@ function draw() {
     }
     // -----------------------------------
 
+    // --- BULLET MODE COLOR SWAP ---
+    let originalColor1 = p1.color;
+    let originalColor2 = p2.color;
+    
+    if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
+        if (currentBullet === 'p1') p1.color = '#B200FF'; // Changes to bullet color
+        if (currentBullet === 'p2') p2.color = '#B200FF'; // Changes to bullet color
+    }
+    
     drawPlayer(p1);
     if (gameMode === 'multiplayer') drawPlayer(p2);
+    
+    // Reset colors so they don't get stuck
+    p1.color = originalColor1;
+    p2.color = originalColor2;
+    // ------------------------------
 
     ctx.fillStyle = '#B200FF';
     ctx.shadowBlur = 12; ctx.shadowColor = '#B200FF';
@@ -984,33 +1005,6 @@ function draw() {
         
         ctx.fillText(`Magnetic hits taken: ${magneticHits}`, canvas.width / 2, 30);
         ctx.fillText(`Time to touch: ${(magneticTimer / 60).toFixed(1)}s`, canvas.width / 2, 50);
-    }
-    
-    // --- BULLET MODE TAG LOGIC ---
-    if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && p1.active && p2.active) {
-        if (tagCooldown > 0) tagCooldown--;
-
-        let dx = p1.x - p2.x;
-        let dy = p1.y - p2.y;
-        let dist = Math.sqrt(dx * dx + dy * dy);
-
-        // If they touch and the cooldown is ready
-        if (dist < (p1.size / 2 + p2.size / 2) && tagCooldown <= 0) {
-            // Swap Speeds
-            let tempSpeed = p1.speed;
-            p1.speed = p2.speed;
-            p2.speed = tempSpeed;
-
-            // Swap Dash Cooldowns
-            let tempDash = p1.maxDashCooldown;
-            p1.maxDashCooldown = p2.maxDashCooldown;
-            p2.maxDashCooldown = tempDash;
-
-            // Swap who is the Bullet
-            currentBullet = (currentBullet === 'p1') ? 'p2' : 'p1';
-            
-            tagCooldown = 60; // 1 second cooldown before another tag
-        }
     }
     
     // --- NEW ADHD TIMER HUD ---
