@@ -698,8 +698,8 @@ function update() {
             p2.speed = 3.5; p2.maxDashCooldown = 120; // Bullet is slow
             p1.speed = 7.5; p1.maxDashCooldown = 30;  // Normal is fast
         } else if (currentBullet === 'none') {
-            p1.speed = 5; p1.maxDashCooldown = 60; // Standard stats for Finale
-            p2.speed = 5; p2.maxDashCooldown = 60;
+            p1.speed = 7.5; p1.maxDashCooldown = 30; // Both players get the fast stats
+            p2.speed = 7.5; p2.maxDashCooldown = 30;
         }
 
         // 2. Overlap damages the normal player (NO role swapping)
@@ -1083,6 +1083,12 @@ function startGame(hp, difficultyName) {
     else p1.color = p1Color;
 
     p2.color = p2Color; 
+
+    // Reset player stats to default for standard modes
+    p1.speed = 6.5;            // Updated to match your real default
+    p1.maxDashCooldown = 40;   // Updated to match your real default
+    p2.speed = 6.5;
+    p2.maxDashCooldown = 40;
 
     p1.x = canvas.width / 2 - (gameMode === 'multiplayer' ? 50 : 0); p1.y = canvas.height / 2; 
     p1.hitsTaken = 0; p1.active = true; p1.isInvulnerable = 120;
