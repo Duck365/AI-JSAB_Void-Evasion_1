@@ -303,8 +303,13 @@ function executePhase1(t) {
 
     if (t > 800 && t < 1500) {
         if (t % 60 === 0) {
-            spawnWarning(p1.x, p1.y, "track", "p1", 0, 30);
-            if (typeof p2 !== 'undefined' && p2.active) spawnWarning(p2.x, p2.y, "track", "p2", 0, 30);
+            let t1 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p1') ? p2 : p1;
+            spawnWarning(t1.x, t1.y, "track", t1 === p1 ? "p1" : "p2", 0, 30);
+            
+            if (typeof p2 !== 'undefined' && p2.active) {
+                let t2 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p2') ? p1 : p2;
+                spawnWarning(t2.x, t2.y, "track", t2 === p2 ? "p2" : "p1", 0, 30);
+            }
         }
         if (t % 15 === 0) {
             spawnProjectile(Math.random() * canvas.width, -20, 0, 7 + Math.random() * 4, 15, 150, false, 'wingding');
@@ -423,10 +428,13 @@ function executePhase2(t) {
             spawnWarning(startX === -50 ? 50 : canvas.width - 50, p1.y - 100, dir, "split_wall", p1.y + 100, 40);
         }
         if (t % 90 === 0) {
-            // Note: If your sniper lines automatically shoot projectiles, ensure the warning logic 
-            // inside your main code spawns 'wingding' types when coming from the center portal.
-            spawnWarning(canvas.width / 2, canvas.height / 2, "sniper_line", p1.x, p1.y, 45);
-            if (typeof p2 !== 'undefined' && p2.active) spawnWarning(canvas.width / 2, canvas.height / 2, "sniper_line", p2.x, p2.y, 45);
+            let t1 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p1') ? p2 : p1;
+            spawnWarning(canvas.width / 2, canvas.height / 2, "sniper_line", t1.x, t1.y, 45);
+            
+            if (typeof p2 !== 'undefined' && p2.active) {
+                let t2 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p2') ? p1 : p2;
+                spawnWarning(canvas.width / 2, canvas.height / 2, "sniper_line", t2.x, t2.y, 45);
+            }
         }
     }
 
@@ -467,7 +475,12 @@ function executePhase3(t) {
         let isCoop = typeof p2 !== 'undefined' && p2.active;
         
         if (t % (isCoop ? 50 : 30) === 0) {
-            spawnWarning(p1.x, p1.y, "firecracker", 0, 50, 40);
+            let t1 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p1') ? p2 : p1;
+            spawnWarning(t1.x, t1.y, "firecracker", 0, 50, 40);
+        }
+        if (isCoop && (t + 25) % 50 === 0) {
+            let t2 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p2') ? p1 : p2;
+            spawnWarning(t2.x, t2.y, "firecracker", 0, 50, 40);
         }
         if (isCoop && (t + 25) % 50 === 0) {
             spawnWarning(p2.x, p2.y, "firecracker", 0, 50, 40);
@@ -482,11 +495,14 @@ function executePhase3(t) {
 
     if (t > 6800 && t < 7800) {
         if (t % 90 === 0) {
-            spawnWarning(50, 50, "sniper_line", p1.x, p1.y, 60);
-            spawnWarning(canvas.width - 50, canvas.height - 50, "sniper_line", p1.x, p1.y, 60);
+            let t1 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p1') ? p2 : p1;
+            spawnWarning(50, 50, "sniper_line", t1.x, t1.y, 60);
+            spawnWarning(canvas.width - 50, canvas.height - 50, "sniper_line", t1.x, t1.y, 60);
+            
             if (typeof p2 !== 'undefined' && p2.active) {
-                spawnWarning(50, canvas.height - 50, "sniper_line", p2.x, p2.y, 60);
-                spawnWarning(canvas.width - 50, 50, "sniper_line", p2.x, p2.y, 60);
+                let t2 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p2') ? p1 : p2;
+                spawnWarning(50, canvas.height - 50, "sniper_line", t2.x, t2.y, 60);
+                spawnWarning(canvas.width - 50, 50, "sniper_line", t2.x, t2.y, 60);
             }
         }
         
@@ -510,11 +526,12 @@ function executePhase3(t) {
             spawnWarning(canvas.width - 150, canvas.height - 150, "ring", 0, 80, 45);
         }
         if (t % 60 === 0) {
-            // Player 1 targeted from the top
-            spawnWarning(canvas.width / 2, 0, "sniper_line", p1.x, p1.y, 40);
-            // Player 2 also targeted from the absolute top (y = 0)
+            let t1 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p1') ? p2 : p1;
+            spawnWarning(canvas.width / 2, 0, "sniper_line", t1.x, t1.y, 40);
+            
             if (typeof p2 !== 'undefined' && p2.active) {
-                spawnWarning(canvas.width / 2, 0, "sniper_line", p2.x, p2.y, 40);
+                let t2 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p2') ? p1 : p2;
+                spawnWarning(canvas.width / 2, 0, "sniper_line", t2.x, t2.y, 40);
             }
         }
         if (t % 15 === 0) {
@@ -677,11 +694,9 @@ function update() {
         if (currentBullet === 'p1') {
             p1.speed = 3.5; p1.maxDashCooldown = 120; // Bullet is slow
             p2.speed = 7.5; p2.maxDashCooldown = 30;  // Normal is fast
-            p1.isInvulnerable = 2; // Bullet is invincible to standard projectiles
         } else if (currentBullet === 'p2') {
             p2.speed = 3.5; p2.maxDashCooldown = 120; // Bullet is slow
             p1.speed = 7.5; p1.maxDashCooldown = 30;  // Normal is fast
-            p2.isInvulnerable = 2; 
         } else if (currentBullet === 'none') {
             p1.speed = 5; p1.maxDashCooldown = 60; // Standard stats for Finale
             p2.speed = 5; p2.maxDashCooldown = 60;
@@ -722,6 +737,10 @@ function update() {
                 for(let j = 0; j < Math.PI * 2; j += Math.PI / 8) spawnProjectile(w.x, w.y, Math.cos(j)*9, Math.sin(j)*9, 14);
             } else if (w.vx === "track") {
                 let target = w.vy === "p2" ? p2 : p1;
+                // Override target in Bullet Mode
+                if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet !== 'none') {
+                    target = (currentBullet === 'p1') ? p2 : p1;
+                }
                 let angle = Math.atan2(target.y - w.y, target.x - w.x);
                 spawnProjectile(w.x, w.y, Math.cos(angle)*12, Math.sin(angle)*12, 16);
             } else if (w.vy === "split_wall") {
@@ -787,6 +806,9 @@ function update() {
         if (p.life <= 0) { projectiles.splice(i, 1); continue; }
 
         let checkHit = (playerObj) => {
+            // NEW: Completely ignore projectile collisions for the Bullet player
+            if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && ((currentBullet === 'p1' && playerObj === p1) || (currentBullet === 'p2' && playerObj === p2))) return;
+
             if (playerObj.active && playerObj.isInvulnerable <= 0) {
                 if (Math.abs(playerObj.x - p.x) < (playerObj.size/2 + p.size/2 - 3) && 
                     Math.abs(playerObj.y - p.y) < (playerObj.size/2 + p.size/2 - 3)) {
