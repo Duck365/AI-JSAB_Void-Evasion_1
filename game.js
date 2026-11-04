@@ -670,35 +670,49 @@ function update() {
         }
     }
 
-    // --- BULLET MODE TAG LOGIC ---
+    // --- BULLET MODE PvP LOGIC ---
     if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && typeof p1 !== 'undefined' && p1.active && typeof p2 !== 'undefined' && p2.active) {
-        if (typeof tagCooldown === 'undefined') window.tagCooldown = 0;
-        if (tagCooldown > 0) tagCooldown--;
+        
+        // 1. Lock in the stats for the entire phase
+        if (currentBullet === 'p1') {
+            p1.speed = 3.5; p1.maxDashCooldown = 120; // Bullet is slow
+            p2.speed = 7.5; p2.maxDashCooldown = 30;  // Normal is fast
+            p1.isInvulnerable = 2; // Bullet is invincible to standard projectiles
+        } else if (currentBullet === 'p2') {
+            p2.speed = 3.5; p2.maxDashCooldown = 120; // Bullet is slow
+            p1.speed = 7.5; p1.maxDashCooldown = 30;  // Normal is fast
+            p2.isInvulnerable = 2; 
+        } else if (currentBullet === 'none') {
+            p1.speed = 5; p1.maxDashCooldown = 60; // Standard stats for Finale
+            p2.speed = 5; p2.maxDashCooldown = 60;
+        }
 
-        let dx = p1.x - p2.x;
-        let dy = p1.y - p2.y;
-        let dist = Math.sqrt(dx * dx + dy * dy);
+        // 2. Overlap damages the normal player (NO role swapping)
+        if (currentBullet !== 'none') {
+            let dx = p1.x - p2.x;
+            let dy = p1.y - p2.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
 
-        // If they touch and the cooldown is ready
-        if (dist < (p1.size / 2 + p2.size / 2) && tagCooldown <= 0) {
-            // Swap Speeds
-            let tempSpeed = p1.speed;
-            p1.speed = p2.speed;
-            p2.speed = tempSpeed;
-
-            // Swap Dash Cooldowns
-            let tempDash = p1.maxDashCooldown;
-            p1.maxDashCooldown = p2.maxDashCooldown;
-            p2.maxDashCooldown = tempDash;
-
-            // Swap who is the Bullet
-            currentBullet = (currentBullet === 'p1') ? 'p2' : 'p1';
-            
-            tagCooldown = 60; // 1 second cooldown before another tag
+            // If they touch, hurt the normal player
+            if (dist < (p1.size / 2 + p2.size / 2)) {
+                let target = (currentBullet === 'p1') ? p2 : p1;
+                
+                if (target.isInvulnerable <= 0) {
+                    target.hitsTaken++;
+                    if (currentDifficulty !== 'Debug') {
+                        target.health--;
+                        if (target.health <= 0) {
+                            target.active = false;
+                            if (!p1.active && !p2.active) gameOver();
+                        }
+                    }
+                    target.isInvulnerable = 60; // 60 frames of i-frames for the normal player
+                }
+            }
         }
     }
     // -----------------------------
-
+    
     for (let i = warnings.length - 1; i >= 0; i--) {
         let w = warnings[i];
         w.timer--;
