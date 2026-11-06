@@ -91,11 +91,12 @@
     <!-- Difficulty Selector Screen -->
     <div id="difficulty-screen" class="screen">
         <h2>SELECT DIFFICULTY</h2>
-        <button onclick="startGame(10, 'Easy')">Easy (10 Hits)</button>
-        <button onclick="startGame(8, 'Normal')">Normal (8 Hits)</button>
-        <button onclick="startGame(5, 'Hard')">Hard (5 Hits)</button>
-        <button onclick="startGame(1, 'Hardcore')">Hardcore (1 Hit)</button>
-        <button onclick="startGame('Debug', 'Debug')">Debug (Invincible)</button>
+        <button class="menu-btn btn-easy" onclick="startGame(10, 'Easy')">EASY (10 HITS)</button>
+        <button class="menu-btn btn-normal" onclick="startGame(8, 'Normal')">NORMAL (8 HITS)</button>
+        <button class="menu-btn btn-hard" onclick="startGame(5, 'Hard')">HARD (5 HITS)</button>
+        <button class="menu-btn btn-hardcore" onclick="startGame(3, 'Hardcore')">HARDCORE (3 HITS)</button>
+        <button class="menu-btn btn-nohit" onclick="startGame(1, 'No-Hit')">NO-HIT (1 HIT)</button>
+        <button class="menu-btn btn-debug" onclick="startGame('Debug', 'Debug')">DEBUG (INVINCIBLE)</button>
         
         <div style="margin-top: 20px;">
             <button onclick="toggleCustomHp()">Set HP</button>
