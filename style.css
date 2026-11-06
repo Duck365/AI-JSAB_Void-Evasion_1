@@ -72,19 +72,19 @@ button:hover:not(:disabled) {
 /* Custom HP Button Styles */
 /* Easy - Green */
 .btn-easy { border-color: #00FF00; color: #00FF00; }
-.btn-easy:hover { background-color: #00FF00; color: #000; box-shadow: 0 0 15px #00FF00; }
+button.btn-easy:hover:not(:disabled) { background-color: #00FF00; color: #000; box-shadow: 0 0 15px #00FF00; }
 
 /* Normal - Yellow */
 .btn-normal { border-color: #FFFF00; color: #FFFF00; }
-.btn-normal:hover { background-color: #FFFF00; color: #000; box-shadow: 0 0 15px #FFFF00; }
+button.btn-normal:hover:not(:disabled) { background-color: #FFFF00; color: #000; box-shadow: 0 0 15px #FFFF00; }
 
 /* Hard - Orange */
 .btn-hard { border-color: #FFA500; color: #FFA500; }
-.btn-hard:hover { background-color: #FFA500; color: #000; box-shadow: 0 0 15px #FFA500; }
+button.btn-hard:hover:not(:disabled) { background-color: #FFA500; color: #000; box-shadow: 0 0 15px #FFA500; }
 
 /* Hardcore - Red */
 .btn-hardcore { border-color: #FF0000; color: #FF0000; }
-.btn-hardcore:hover { background-color: #FF0000; color: #fff; box-shadow: 0 0 15px #FF0000; }
+button.btn-hardcore:hover:not(:disabled) { background-color: #FF0000; color: #fff; box-shadow: 0 0 15px #FF0000; }
 
 /* No-Hit - Animated Hazard Stripes */
 .btn-nohit { 
@@ -92,11 +92,10 @@ button:hover:not(:disabled) {
     color: #FFFF00; 
     text-shadow: 1px 1px 2px #000; 
 }
-.btn-nohit:hover {
-    color: #FFF; /* White text stands out better against the moving stripes */
+button.btn-nohit:hover:not(:disabled) {
+    color: #FFF; 
     border-color: #FFFF00;
     box-shadow: 0 0 15px #FFFF00;
-    /* Repeating gradient for hazard stripes */
     background: repeating-linear-gradient(
         -45deg,
         #000000,
@@ -109,7 +108,7 @@ button:hover:not(:disabled) {
 }
 @keyframes hazard-slide {
     0% { background-position: 0 0; }
-    100% { background-position: -42px 0; } /* Matches the stripe math for a perfect loop */
+    100% { background-position: -42px 0; } 
 }
 
 /* Debug - Animated RGB Rainbow */
@@ -117,19 +116,18 @@ button:hover:not(:disabled) {
     border-color: #B200FF; 
     color: #B200FF; 
 }
-.btn-debug:hover {
+button.btn-debug:hover:not(:disabled) {
     color: #FFF;
     border-color: #FFF;
     box-shadow: 0 0 20px #B200FF;
     text-shadow: 1px 1px 2px #000;
-    /* Seamless rainbow gradient */
     background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
     background-size: 200% 100%;
     animation: rainbow-slide 1.5s linear infinite;
 }
 @keyframes rainbow-slide {
     0% { background-position: 0% 0; }
-    100% { background-position: 200% 0; } /* Loops perfectly since red is at both ends */
+    100% { background-position: 200% 0; } 
 }
 
 .phase-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
