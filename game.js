@@ -1072,6 +1072,25 @@ function draw() {
     }
 }
 
+function transitionToGame(hp, difficultyName) {
+    const activeScreen = document.querySelector('.screen.active');
+    
+    if (activeScreen) {
+        // Trigger the CSS dissolve animation
+        activeScreen.classList.add('dissolve-out');
+        
+        // Wait 400ms for the animation to finish, then start the game
+        setTimeout(() => {
+            startGame(hp, difficultyName);
+            // Clean up the animation class so the menu looks normal when you die/return
+            activeScreen.classList.remove('dissolve-out');
+        }, 400);
+    } else {
+        // Fallback in case no screen is active
+        startGame(hp, difficultyName);
+    }
+}
+
 function startGame(hp, difficultyName) {
     currentDifficulty = difficultyName; currentHpSetting = hp;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
