@@ -91,12 +91,12 @@
     <!-- Difficulty Selector Screen -->
     <div id="difficulty-screen" class="screen">
         <h2>SELECT DIFFICULTY</h2>
-        <button class="menu-btn btn-easy" onclick="startGame(10, 'Easy')">EASY (10 HITS)</button>
-        <button class="menu-btn btn-normal" onclick="startGame(8, 'Normal')">NORMAL (8 HITS)</button>
-        <button class="menu-btn btn-hard" onclick="startGame(5, 'Hard')">HARD (5 HITS)</button>
-        <button class="menu-btn btn-hardcore" onclick="startGame(3, 'Hardcore')">HARDCORE (3 HITS)</button>
-        <button class="menu-btn btn-nohit" onclick="startGame(1, 'No-Hit')">NO-HIT (1 HIT)</button>
-        <button class="menu-btn btn-debug" onclick="startGame('Debug', 'Debug')">DEBUG (INVINCIBLE)</button>
+        <button class="menu-btn btn-easy" onclick="transitionToGame(10, 'Easy')">EASY (10 HITS)</button>
+        <button class="menu-btn btn-normal" onclick="transitionToGame(8, 'Normal')">NORMAL (8 HITS)</button>
+        <button class="menu-btn btn-hard" onclick="transitionToGame(5, 'Hard')">HARD (5 HITS)</button>
+        <button class="menu-btn btn-hardcore" onclick="transitionToGame(3, 'Hardcore')">HARDCORE (3 HITS)</button>
+        <button class="menu-btn btn-nohit" onclick="transitionToGame(1, 'No-Hit')">NO-HIT (1 HIT)</button>
+        <button class="menu-btn btn-debug" onclick="transitionToGame('Debug', 'Debug')">DEBUG (INVINCIBLE)</button>
         
         <div style="margin-top: 20px;">
             <button onclick="toggleCustomHp()">Set HP</button>
