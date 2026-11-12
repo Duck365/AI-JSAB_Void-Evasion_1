@@ -1172,46 +1172,28 @@ function gameOver() {
     }
 }
 
-function gameWon() {
+function gameOver() {
     gameActive = false; cancelAnimationFrame(animationId);
     let challengeText = challengeMode !== 'none' ? ` Challenge - ${challengeMode.charAt(0).toUpperCase() + challengeMode.slice(1)}` : '';
 
-    // Safely calculate Remaining HP format using the globally saved currentHpSetting
-    let hpText = "";
-    if (!isMagneticMode && gameMode !== 'multiplayer' && currentDifficulty !== 'Debug') {
-        let maxHp = currentHpSetting; 
-        
-        if (maxHp !== undefined && !isNaN(maxHp) && maxHp > 0) {
-            let hits = (typeof p1 !== 'undefined' && typeof p1.hitsTaken !== 'undefined') ? p1.hitsTaken : 0;
-            let currentHp = Math.max(0, maxHp - hits);
-            hpText = ` | Remaining HP: ${currentHp}/${maxHp}`;
-        }
-    }
-
     if (gameMode === 'practice') {
-        document.getElementById('victory-title').innerText = "PHASE CLEARED";
-        let baseText = `Phase ${selectedPracticePhase} Practice${challengeText}, ${currentDifficulty}`;
-        
-        // Only append HP remaining if it's a full phase
-        if (!selectedPracticePhase.includes('.')) {
-            baseText += hpText;
-        }
-        
-        document.getElementById('victory-stats-mode').innerText = baseText;
+        document.getElementById('practice-failed-mode').innerText = `Phase ${selectedPracticePhase}, ${currentDifficulty}`;
+        showScreen('practice-failed-screen');
     } else {
-        document.getElementById('victory-title').innerText = "FULL FIGHT CLEARED";
+        let timeSurvived = Math.floor(frameCount / 60);
         let modeLabel = isMagneticMode ? 'Magnetic Mode' : (gameMode === 'multiplayer' ? 'Multiplayer' : 'Full Fight');
+        document.getElementById('death-stats-mode').innerText = `${modeLabel}${challengeText}, ${currentDifficulty}`;
         
-        document.getElementById('victory-stats-mode').innerText = `${modeLabel}${challengeText}, ${currentDifficulty}${hpText}`;
-    }
-    
-    if (currentDifficulty === 'Debug') {
-        document.getElementById('debug-hits-display').style.display = 'block';
+        let survivalElement = document.getElementById('survival-time').parentElement;
+
         if (gameMode === 'multiplayer') {
-            document.getElementById('final-hits').innerText = `P1: ${p1.hitsTaken} | P2: ${p2.hitsTaken}${isMagneticMode ? ` | Magnetic Hits: ${magneticHits}` : ''}`;
+            let p1Status = p1.health > 0 ? "Survived" : (p1.deathLog || "Died");
+            let p2Status = p2.health > 0 ? "Survived" : (p2.deathLog || "Died");
+            survivalElement.innerHTML = `Time Survived: ${timeSurvived} seconds<br><br><span style="color:${p1.color}; font-size: 1.2rem;">P1: ${p1Status}</span><br><span style="color:${p2.color}; font-size: 1.2rem;">P2: ${p2Status}</span>`;
         } else {
-            document.getElementById('final-hits').innerText = `${p1.hitsTaken}`;
+            survivalElement.innerHTML = `Time Survived: ${timeSurvived} seconds`;
         }
+        
+        showScreen('game-over-screen');
     }
-    showScreen('victory-screen');
 }
