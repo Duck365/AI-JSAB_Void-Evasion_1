@@ -718,6 +718,7 @@ function update() {
                         target.health--;
                         if (target.health <= 0) {
                             target.active = false;
+                            target.deathLog = `Eliminated by Player at ${Math.floor(frameCount / 60)}s`;
                             if (!p1.active && !p2.active) gameOver();
                         }
                     }
@@ -818,6 +819,7 @@ function update() {
                         playerObj.health--;
                         if (playerObj.health <= 0) {
                             playerObj.active = false;
+                            playerObj.deathLog = `Killed by Projectile at ${Math.floor(frameCount / 60)}s`;
                             if (!p1.active && !p2.active) gameOver();
                         } else playerObj.isInvulnerable = 60; 
                     } else {
@@ -1156,7 +1158,17 @@ function gameOver() {
         let timeSurvived = Math.floor(frameCount / 60);
         let modeLabel = isMagneticMode ? 'Magnetic Mode' : (gameMode === 'multiplayer' ? 'Multiplayer' : 'Full Fight');
         document.getElementById('death-stats-mode').innerText = `${modeLabel}${challengeText}, ${currentDifficulty}`;
-        document.getElementById('survival-time').innerText = timeSurvived; showScreen('game-over-screen');
+        
+        // Multi-line death tracking for multiplayer
+        if (gameMode === 'multiplayer') {
+            let p1Status = p1.health > 0 ? "Survived" : (p1.deathLog || "Died");
+            let p2Status = p2.health > 0 ? "Survived" : (p2.deathLog || "Died");
+            document.getElementById('survival-time').innerHTML = `Time Survived: ${timeSurvived} seconds<br><br><span style="color:${p1.color}; font-size: 1.2rem;">P1: ${p1Status}</span><br><span style="color:${p2.color}; font-size: 1.2rem;">P2: ${p2Status}</span>`;
+        } else {
+            document.getElementById('survival-time').innerText = `Time Survived: ${timeSurvived} seconds`;
+        }
+        
+        showScreen('game-over-screen');
     }
 }
 
@@ -1164,19 +1176,10 @@ function gameWon() {
     gameActive = false; cancelAnimationFrame(animationId);
     let challengeText = challengeMode !== 'none' ? ` Challenge - ${challengeMode.charAt(0).toUpperCase() + challengeMode.slice(1)}` : '';
 
-    // Safely calculate Remaining HP format based on hits taken and starting max HP
+    // Safely calculate Remaining HP format using the globally saved currentHpSetting
     let hpText = "";
-    if (!isMagneticMode && gameMode !== 'multiplayer') {
-        let maxHpMap = { 'Easy': 10, 'Normal': 8, 'Hard': 5, 'Hardcore': 1 };
-        let maxHp = maxHpMap[currentDifficulty];
-        
-        // FOOLPROOF CUSTOM HP CHECK: Pull directly from the Custom HP input box!
-        if (maxHp === undefined && currentDifficulty.includes('Custom')) {
-            let customVal = parseInt(document.getElementById('custom-hp-input').value);
-            if (!isNaN(customVal) && customVal > 0) {
-                maxHp = customVal;
-            }
-        }
+    if (!isMagneticMode && gameMode !== 'multiplayer' && currentDifficulty !== 'Debug') {
+        let maxHp = currentHpSetting; 
         
         if (maxHp !== undefined && !isNaN(maxHp) && maxHp > 0) {
             let hits = (typeof p1 !== 'undefined' && typeof p1.hitsTaken !== 'undefined') ? p1.hitsTaken : 0;
