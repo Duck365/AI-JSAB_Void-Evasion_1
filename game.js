@@ -55,8 +55,8 @@ const p2 = {
 };
 
 const PHASE_FRAMES = {
-    '1': 0, '1.1': 0, '1.2': 740, '1.3': 1560,
-    '2': 2700, '2.1': 2700, '2.2': 3600, '2.3': 4500,
+    '1': 0, '1.1': 0, '1.2': 740, '1.3': 1560, 'trans1': 2400,
+    '2': 2700, '2.1': 2700, '2.2': 3600, '2.3': 4500, 'trans2': 5400,
     '3': 5700, '3.1': 5700, '3.2': 6800, '3.3': 7900
 };
 
@@ -1141,6 +1141,8 @@ function startGame(hp, difficultyName) {
         if (majorPhase === '1') maxSeconds = 2400 / 60;
         else if (majorPhase === '2') maxSeconds = 5400 / 60;
         else if (majorPhase === '3') maxSeconds = 9000 / 60;
+        else if (selectedPracticePhase === 'trans1') maxSeconds = 2700 / 60; // Ends when Phase 2 begins
+        else if (selectedPracticePhase === 'trans2') maxSeconds = 5700 / 60; // Ends when Phase 3 begins
     }
     document.getElementById('timer-max').innerText = '/ ' + maxSeconds;
     
