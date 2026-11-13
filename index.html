@@ -203,7 +203,7 @@
         
         <br>
         
-        <p><strong>P</strong> - Pause Game</p>
+        <p><strong>P or Esc</strong> - Pause Game</p>
         <br>
         <button class="main-btn" onclick="showScreen('menu-screen')">Back</button>
     </div>
@@ -212,15 +212,17 @@
     <div id="pause-screen" class="screen" style="background: rgba(0, 0, 0, 0.95); z-index: 20;">
         <h1>PAUSED</h1>
         <button class="main-btn" onclick="resumeGame()">Resume</button>
+        <button class="main-btn" onclick="startGame(currentHpSetting, currentDifficulty); document.getElementById('victory-screen').classList.remove('active');">Retry</button>
         <button class="main-btn" onclick="quitToMenu()">Menu</button>
     </div>
 
-    <!-- Game Over Screen -->
+<!-- Game Over Screen -->
     <div id="game-over-screen" class="screen">
         <h1 class="danger-text">SYSTEM FAILURE</h1>
         <p class="stats-text" id="death-stats-mode">Full Fight, Difficulty</p>
         <p>Time Survived: <span id="survival-time">0</span> seconds</p>
         <br>
+        <button class="main-btn" onclick="startGame(currentHpSetting, currentDifficulty); document.getElementById('game-over-screen').classList.remove('active');">RETRY</button>
         <button class="main-btn" onclick="showScreen('menu-screen')">MAIN MENU</button>
     </div>
 
@@ -232,12 +234,13 @@
         <button class="main-btn" onclick="showScreen('menu-screen')">MAIN MENU</button>
     </div>
 
-    <!-- Victory Screen -->
+<!-- Victory Screen -->
     <div id="victory-screen" class="screen">
         <h1 class="victory-text" id="victory-title">FULL FIGHT CLEARED</h1>
         <p class="stats-text" id="victory-stats-mode">Mode, Difficulty</p>
         <p id="debug-hits-display" style="display:none; color: yellow;">Hits Taken: <span id="final-hits">0</span></p>
         <br>
+        <button class="main-btn" onclick="startGame(currentHpSetting, currentDifficulty); document.getElementById('victory-screen').classList.remove('active');">RETRY</button>
         <button class="main-btn" onclick="showScreen('menu-screen')">MAIN MENU</button>
     </div>
 
