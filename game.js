@@ -1097,9 +1097,13 @@ function startGame(hp, difficultyName) {
     document.getElementById('debug-hits-display').style.display = 'none';
     resize(); canvas.style.display = 'block'; document.getElementById('hud').style.display = 'flex';
     
-    if (challengeMode === 'invisible') p1.color = '#000000';
-    else if (challengeMode === 'bullet-colored') p1.color = '#B200FF';
-    else p1.color = p1Color;
+    if (challengeMode === 'invisible') {
+        p1.color = '#000000';
+    } else if (isP1BulletColored && gameMode !== 'bullet') { 
+        p1.color = '#B200FF'; // Applies purple bullet color unless Bullet Mode is active
+    } else {
+        p1.color = p1Color;
+    }
 
     p2.color = p2Color; 
 
