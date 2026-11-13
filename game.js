@@ -1099,8 +1099,8 @@ function startGame(hp, difficultyName) {
     
     if (challengeMode === 'invisible') {
         p1.color = '#000000';
-    } else if (isP1BulletColored && gameMode !== 'bullet') { 
-        p1.color = '#B200FF'; // Applies purple bullet color unless Bullet Mode is active
+    } else if (typeof isP1BulletColored !== 'undefined' && isP1BulletColored && gameMode !== 'bullet') { 
+        p1.color = '#B200FF'; 
     } else {
         p1.color = p1Color;
     }
