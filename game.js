@@ -546,9 +546,11 @@ function executeAttacks() {
     let t = frameCount;
     let majorPhase = selectedPracticePhase.charAt(0);
 
-    if (gameMode === 'full' || gameMode === 'multiplayer' || (gameMode === 'practice' && majorPhase === '1')) executePhase1(t);
+    // 1. Allow 'trans1' to trigger Phase 1's end logic
+    if (gameMode === 'full' || gameMode === 'multiplayer' || (gameMode === 'practice' && (majorPhase === '1' || selectedPracticePhase === 'trans1'))) executePhase1(t);
 
-    if (gameMode === 'full' || gameMode === 'multiplayer') {
+    // 2. Un-gate the hardcoded transition 1 attacks
+    if (gameMode === 'full' || gameMode === 'multiplayer' || selectedPracticePhase === 'trans1') {
         if (t === 2400) { projectiles = []; warnings = []; }
         if (t === 2460 || t === 2470 || t === 2480) {
             for(let i = 0; i < canvas.height; i += 20) {
@@ -558,9 +560,11 @@ function executeAttacks() {
         }
     }
 
-    if (gameMode === 'full' || gameMode === 'multiplayer' || (gameMode === 'practice' && majorPhase === '2')) executePhase2(t);
+    // 3. Allow 'trans2' to trigger Phase 2's end logic
+    if (gameMode === 'full' || gameMode === 'multiplayer' || (gameMode === 'practice' && (majorPhase === '2' || selectedPracticePhase === 'trans2'))) executePhase2(t);
 
-    if (gameMode === 'full' || gameMode === 'multiplayer') {
+    // 4. Un-gate the hardcoded transition 2 reset
+    if (gameMode === 'full' || gameMode === 'multiplayer' || selectedPracticePhase === 'trans2') {
         if (t === 5400) { projectiles = []; warnings = []; }
     }
 
@@ -581,6 +585,10 @@ function executeAttacks() {
         if (selectedPracticePhase === '3.2' && t === 7900) gameWon();
         if (selectedPracticePhase === '3.3' && t === 9000) gameWon();
         if (selectedPracticePhase === '3' && t === 9000) gameWon();
+        
+        // 5. Add exact win conditions for the transition phases
+        if (selectedPracticePhase === 'trans1' && t === 2700) gameWon();
+        if (selectedPracticePhase === 'trans2' && t === 5700) gameWon();
     }
 
     if ((gameMode === 'full' || gameMode === 'multiplayer') && t === 9000) gameWon();
@@ -1057,17 +1065,25 @@ function draw() {
     ctx.textAlign = 'center';
     let startFrame = gameMode === 'practice' ? PHASE_FRAMES[selectedPracticePhase] : 0;
     if (p1.isInvulnerable > 0 && frameCount < startFrame + 120) {
-        ctx.fillStyle = `rgba(255, 255, 255, ${p1.isInvulnerable / 120})`; ctx.font = '3rem Courier New';
-        ctx.fillText(gameMode === 'practice' ? `PHASE ${selectedPracticePhase} PRACTICE` : (isMagneticMode ? 'MAGNETIC MODE' : 'GET READY!'), canvas.width / 2, canvas.height / 2 - 100);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p1.isInvulnerable / 120})`; 
+        ctx.font = '3rem Courier New';
+        
+        // 1. Create a variable for the display name
+        let displayName = selectedPracticePhase;
+        if (selectedPracticePhase === 'trans1') displayName = "THE ROTATING GAUNTLET";
+        if (selectedPracticePhase === 'trans2') displayName = "THE SINGLE PENDULUM SWEEP";
+
+        // 2. Use the new displayName in the fillText call
+        ctx.fillText(gameMode === 'practice' ? `PHASE ${displayName} PRACTICE` : (isMagneticMode ? 'MAGNETIC MODE' : 'GET READY!'), canvas.width / 2, canvas.height / 2 - 100);
     }
     if (gameMode === 'full' || gameMode === 'multiplayer') {
         if (frameCount >= 2400 && frameCount < 2520) {
             ctx.fillStyle = `rgba(255, 50, 50, ${(2520 - frameCount)/100})`; ctx.font = 'bold 5rem Courier New';
-            ctx.fillText('THE CRUSH', canvas.width / 2, canvas.height / 2); ctx.font = '2rem Courier New'; ctx.fillText('DASH THROUGH!', canvas.width / 2, canvas.height / 2 + 60);
+            ctx.fillText('THE ROTATING GAUNTLET', canvas.width / 2, canvas.height / 2); ctx.font = '2rem Courier New'; ctx.fillText('DASH THROUGH AND MOVE IN THE GAPS!', canvas.width / 2, canvas.height / 2 + 60);
         }
         if (frameCount >= 5400 && frameCount < 5520) {
             ctx.fillStyle = `rgba(255, 0, 0, ${(5520 - frameCount)/100})`; ctx.font = 'bold 5rem Courier New';
-            ctx.fillText('THE GRID', canvas.width / 2, canvas.height / 2); ctx.font = '2rem Courier New'; ctx.fillText('FIND THE SAFE ZONE', canvas.width / 2, canvas.height / 2 + 60);
+            ctx.fillText('THE SINGLE PENDULUM SWEEP', canvas.width / 2, canvas.height / 2); ctx.font = '2rem Courier New'; ctx.fillText('DASH AT THE RIGHT TIME', canvas.width / 2, canvas.height / 2 + 60);
         }
     }
 }
