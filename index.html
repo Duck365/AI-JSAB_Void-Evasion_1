@@ -61,18 +61,18 @@
     <!-- Extras Screen -->
     <div id="extras-screen" class="screen">
         <h2>EXTRAS</h2>
-        <button class="main-btn" onclick="showScreen('special-screen')">Special</button>
+        <button class="main-btn" onclick="showScreen('special-screen')">Multiplayer Challenges</button>
         <button class="main-btn" onclick="showScreen('challenges-screen')">Challenges</button>
         <br><br>
         <button class="main-btn" onclick="showScreen('menu-screen')">Back</button>
     </div>
 
-    <!-- Special Screen -->
+<!-- Special Screen -->
     <div id="special-screen" class="screen">
-        <h2>SPECIAL MODES</h2>
-        <button class="main-btn" onclick="setupMode('multiplayer'); showScreen('difficulty-screen')">Multiplayer (Local Duo)</button>
-        <button class="main-btn" onclick="showScreen('magnetic-screen')">Magnetic Mode (Multiplayer)</button>
-        <button class="main-btn" onclick="gameMode = 'multiplayer'; challengeMode = 'bullet'; showScreen('difficulty-screen')">Bullet Mode</button>
+        <h2>MULTIPLAYER CHALLENGES</h2>
+        <button class="main-btn" onclick="setupMode('multiplayer'); showScreen('difficulty-screen')">Multiplayer</button>
+        <button class="main-btn" onclick="showScreen('magnetic-screen')">Magnetic Mode</button>
+        <button class="main-btn" onclick="setupMode('multiplayer'); challengeMode = 'bullet'; currentBullet = 'p1'; showScreen('difficulty-screen')">Bullet Mode</button>
         <br><br>
         <button class="main-btn" onclick="showScreen('extras-screen')">Back</button>
     </div>
