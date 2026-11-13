@@ -101,6 +101,21 @@ function matchP1Color() {
     setPlayerColor(2, p1ColorText, true);
 }
 
+// Initialize the variable so startGame can read it
+let isP1BulletColored = false;
+
+// The function called by your HTML button
+function toggleBulletColor() {
+    isP1BulletColored = !isP1BulletColored; // Flip the state
+    
+    let btn = document.getElementById('bullet-color-toggle-btn');
+    if (isP1BulletColored) {
+        btn.innerText = "Bullet Colored P1: ON";
+    } else {
+        btn.innerText = "Bullet Colored P1: OFF";
+    }
+}
+
 function updateColorButtons() {
     document.querySelectorAll('#p1-color-grid .color-btn').forEach(btn => {
         if (btn.dataset.color === p2Color) btn.classList.add('disabled');
@@ -1201,15 +1216,21 @@ function gameWon() {
 
     if (gameMode === 'practice') {
         document.getElementById('victory-title').innerText = "PHASE CLEARED";
-        let baseText = `Phase ${selectedPracticePhase} Practice${challengeText}, ${currentDifficulty}`;
         
-        // Only append HP remaining if it's a full phase
-        if (!selectedPracticePhase.includes('.')) {
+        // 1. Intercept the internal name and add quotes
+        let displayName = selectedPracticePhase;
+        if (selectedPracticePhase === 'trans1') displayName = '"The Rotating Gauntlet"';
+        if (selectedPracticePhase === 'trans2') displayName = '"The Single Pendulum Sweep"';
+        
+        let baseText = `Phase ${displayName} Practice${challengeText}, ${currentDifficulty}`;
+        
+        // Only append HP remaining if it's a full phase (and not a transition phase)
+        if (!selectedPracticePhase.includes('.') && !selectedPracticePhase.includes('trans')) {
             baseText += hpText;
         }
         
         document.getElementById('victory-stats-mode').innerText = baseText;
-    } else {
+    } else { 
         document.getElementById('victory-title').innerText = "FULL FIGHT CLEARED";
         let modeLabel = isMagneticMode ? 'Magnetic Mode' : (gameMode === 'multiplayer' ? 'Multiplayer' : 'Full Fight');
         
