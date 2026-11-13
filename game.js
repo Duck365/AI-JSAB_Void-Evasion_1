@@ -933,7 +933,7 @@ function draw() {
         // Outer glowing ring
         ctx.lineWidth = 4 + (pulse * 0.2);
         ctx.strokeStyle = '#B200FF';
-        ctx.shadowBlur = 20;
+        // ctx.shadowBlur = 20;
         ctx.shadowColor = '#B200FF';
         ctx.stroke();
         
@@ -966,7 +966,7 @@ function draw() {
     // ------------------------------
 
     ctx.fillStyle = '#B200FF';
-    ctx.shadowBlur = 12; ctx.shadowColor = '#B200FF';
+    // ctx.shadowBlur = 12; ctx.shadowColor = '#B200FF';
     for (let p of projectiles) {
         if (p.type === 'wingding') {
             ctx.font = `${p.size * 1.5}px Wingdings, "Courier New"`;
@@ -986,7 +986,7 @@ function draw() {
             ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
         }
     }
-    ctx.shadowBlur = 0;
+    // ctx.shadowBlur = 0;
     
     for (let w of warnings) {
         let progress = 1 - (w.timer / w.maxTimer);
