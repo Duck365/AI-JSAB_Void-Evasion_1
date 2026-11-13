@@ -239,7 +239,7 @@ window.addEventListener('keydown', (e) => {
         window.activeKeyOrder.unshift(e.code); 
     }
     
-    if (e.key === 'p' || e.key === 'P') {
+    if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
         if (gameActive) {
             if (!isPaused) pauseGame();
             else resumeGame();
