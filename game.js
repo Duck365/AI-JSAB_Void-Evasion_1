@@ -180,10 +180,29 @@ function startMagneticMode(frames) {
 }
 
 function goBackFromDifficulty() {
-    if (gameMode === 'practice') showScreen('practice-phase-screen');
-    else if (isMagneticMode) showScreen('magnetic-screen');
-    else if (gameMode === 'multiplayer' || challengeMode !== 'none') showScreen('special-screen');
-    else showScreen('menu-screen');
+    // If you were setting up a multiplayer match or bullet mode, go to Multiplayer Challenges
+    if (gameMode === 'multiplayer') {
+        showScreen('special-screen'); 
+    } 
+    // If you were setting up a Full Fight...
+    else if (gameMode === 'full') {
+        // ...and you picked a solo challenge (like One-Signal), go to Challenges
+        if (challengeMode !== 'none' && challengeMode !== 'bullet') {
+            showScreen('challenges-screen'); 
+        } 
+        // ...otherwise, you just clicked "Full Fight" from the Main Menu
+        else {
+            showScreen('menu-screen'); 
+        }
+    } 
+    // If you somehow get here from practice mode
+    else if (gameMode === 'practice') {
+        showScreen('practice-phase-screen');
+    } 
+    // Fallback just in case
+    else {
+        showScreen('menu-screen');
+    }
 }
 
 function pauseGame() {
