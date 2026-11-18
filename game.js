@@ -191,8 +191,8 @@ function spawnWarning(x, y, vx, vy, size, delayTimer) {
 function setupMode(mode, phase = '1') {
     isMagneticMode = false;
     
-    // Added 'bullet' to the array below
-    const challengeModes = ['invisible', 'bullet-colored', 'adhd', 'no-teleport', 'one-signal', 'bullet-lover', 'bullet'];
+    // Changed 'no-teleport' to 'noteleport' so it matches the button and game logic
+    const challengeModes = ['invisible', 'bullet-colored', 'adhd', 'noteleport', 'one-signal', 'bullet-lover', 'bullet'];
     
     if (challengeModes.includes(mode)) {
         gameMode = 'full';
