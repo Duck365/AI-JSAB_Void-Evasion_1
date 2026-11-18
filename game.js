@@ -306,7 +306,6 @@ window.addEventListener('keydown', (e) => {
     keys[e.code] = true; 
     
     // --- ONE SIGNAL MODE TRACKING ---
-    // Push the newest key code to the very front of the array
     if (!window.activeKeyOrder.includes(e.code)) {
         window.activeKeyOrder.unshift(e.code); 
     }
@@ -318,7 +317,8 @@ window.addEventListener('keydown', (e) => {
         }
     }
 
-    if ((e.code === 'Space' || e.code === 'Slash' || e.code === 'ShiftRight' || e.key === '/') && gameActive && !isPaused && p1.dashCooldown <= 0 && p1.active) {
+    // P1 DASH - Now disabled in noteleport mode
+    if ((e.code === 'Space' || e.code === 'Slash' || e.code === 'ShiftRight' || e.key === '/') && gameActive && !isPaused && p1.dashCooldown <= 0 && p1.active && challengeMode !== 'noteleport') {
         let dx = 0; let dy = 0;
         if (keys.ArrowUp || (gameMode !== 'multiplayer' && (keys.w || keys.W))) dy -= 1;
         if (keys.ArrowDown || (gameMode !== 'multiplayer' && (keys.s || keys.S))) dy += 1;
@@ -336,7 +336,8 @@ window.addEventListener('keydown', (e) => {
         p1.isInvulnerable = Math.max(p1.isInvulnerable, 25); 
     }
 
-    if ((e.code === 'ShiftLeft' || e.code === 'KeyQ' || e.code === 'KeyF' || e.key === 'q' || e.key === 'Q' || e.key === 'f' || e.key === 'F') && gameActive && !isPaused && p2.dashCooldown <= 0 && p2.active) {
+    // P2 DASH - Now disabled in noteleport mode
+    if ((e.code === 'ShiftLeft' || e.code === 'KeyQ' || e.code === 'KeyF' || e.key === 'q' || e.key === 'Q' || e.key === 'f' || e.key === 'F') && gameActive && !isPaused && p2.dashCooldown <= 0 && p2.active && challengeMode !== 'noteleport') {
         let dx = 0; let dy = 0;
         if (keys.w || keys.W) dy -= 1;
         if (keys.s || keys.S) dy += 1;
@@ -553,24 +554,32 @@ function executePhase2(t) {
 
 function executePhase3(t) {
     if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet') {
-        if (t === 5700) currentBullet = bulletStartingPlayer; // Phase 3.1 (Carried over)
-        if (t === 6800) currentBullet = (bulletStartingPlayer === 'p1') ? 'p2' : 'p1'; // Phase 3.2
-        if (t === 7900) currentBullet = 'none'; // Phase 3.3 (Both vulnerable)
+        if (t === 5700) currentBullet = bulletStartingPlayer; 
+        if (t === 6800) currentBullet = (bulletStartingPlayer === 'p1') ? 'p2' : 'p1'; 
+        if (t === 7900) currentBullet = 'none'; 
     }
     
     if (t > 5700 && t < 6700) {
         let isCoop = typeof p2 !== 'undefined' && p2.active;
         
-        if (t % (isCoop ? 50 : 30) === 0) {
+        // Normal mode frequency
+        let spawnRate1 = isCoop ? 50 : 30;
+        let spawnRate2 = 50;
+        
+        // Slower frequency if No Teleport Mode is active
+        if (typeof challengeMode !== 'undefined' && challengeMode === 'noteleport') {
+            spawnRate1 = isCoop ? 100 : 75; 
+            spawnRate2 = 100;
+        }
+        
+        if (t % spawnRate1 === 0) {
             let t1 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p1') ? p2 : p1;
             spawnWarning(t1.x, t1.y, "firecracker", 0, 50, 40);
         }
-        if (isCoop && (t + 25) % 50 === 0) {
+        
+        if (isCoop && (t + (spawnRate2 / 2)) % spawnRate2 === 0) {
             let t2 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p2') ? p1 : p2;
             spawnWarning(t2.x, t2.y, "firecracker", 0, 50, 40);
-        }
-        if (isCoop && (t + 25) % 50 === 0) {
-            spawnWarning(p2.x, p2.y, "firecracker", 0, 50, 40);
         }
         
         if (t % (isCoop ? 20 : 10) === 0) {
@@ -579,7 +588,7 @@ function executePhase3(t) {
     }
     
     if (t === 6790) { projectiles = []; warnings = []; }
-
+    
     if (t > 6800 && t < 7800) {
         if (t % 90 === 0) {
             let t1 = (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && currentBullet === 'p1') ? p2 : p1;
@@ -901,8 +910,11 @@ function update() {
         if (p.life <= 0) { projectiles.splice(i, 1); continue; }
 
         let checkHit = (playerObj) => {
-            // NEW: Completely ignore projectile collisions for the Bullet player
+            // Completely ignore projectile collisions for the Bullet player
             if (typeof challengeMode !== 'undefined' && challengeMode === 'bullet' && ((currentBullet === 'p1' && playerObj === p1) || (currentBullet === 'p2' && playerObj === p2))) return;
+
+            // NO TELEPORT MODE: Make the giant lasers (size 20 and up) completely harmless!
+            if (typeof challengeMode !== 'undefined' && challengeMode === 'noteleport' && p.size >= 20) return;
 
             if (playerObj.active && playerObj.isInvulnerable <= 0) {
                 if (Math.abs(playerObj.x - p.x) < (playerObj.size/2 + p.size/2 - 3) && 
@@ -1038,8 +1050,15 @@ function draw() {
     // ------------------------------
 
     ctx.fillStyle = '#B200FF';
-    // ctx.shadowBlur = 12; ctx.shadowColor = '#B200FF';
     for (let p of projectiles) {
+        
+        // NO TELEPORT MODE: Dim the opacity of the giant lasers (size 20 and up) to 25%
+        if (typeof challengeMode !== 'undefined' && challengeMode === 'noteleport' && p.size >= 20) {
+            ctx.globalAlpha = 0.25;
+        } else {
+            ctx.globalAlpha = 1.0;
+        }
+
         if (p.type === 'wingding') {
             ctx.font = `${p.size * 1.5}px Wingdings, "Courier New"`;
             ctx.textAlign = 'center';
@@ -1047,9 +1066,6 @@ function draw() {
             
             // Generate a static unique offset for each bullet
             let uniqueSeed = Math.abs(Math.floor((p.vx * 17) + (p.vy * 23) + (p.size * 13)));
-            
-            // Divisor of 7 equals ~1/8th of a second.
-            // Adding the seed INSIDE the division desyncs the exact frame each bullet updates!
             let charOffset = Math.floor((frameCount + uniqueSeed) / 7) % 26;
             let char = String.fromCharCode(65 + charOffset);
             
@@ -1058,6 +1074,7 @@ function draw() {
             ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
         }
     }
+    ctx.globalAlpha = 1.0; // Reset opacity back to normal for the rest of the drawing
     // ctx.shadowBlur = 0;
     
     for (let w of warnings) {
