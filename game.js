@@ -74,8 +74,47 @@ function showScreen(screenId) {
     canvas.style.display = 'none';
     document.getElementById('hud').style.display = 'none';
     
+    // Fix: Force the Custom HP box to close whenever the screen changes
+    let customHpContainer = document.getElementById('custom-hp-container');
+    if (customHpContainer) customHpContainer.style.display = 'none';
+    
     if (screenId === 'customize-screen') {
         updateColorButtons();
+    }
+
+    // --- BREADCRUMB NAVIGATION LOGIC ---
+    let nav = document.getElementById('breadcrumb-nav');
+    if (nav) {
+        // Hide on gameplay, pause, or victory/game over screens
+        if (['victory-screen', 'game-over-screen', 'pause-screen'].includes(screenId)) {
+            nav.style.display = 'none';
+            return;
+        }
+
+        let path = "MAIN MENU";
+
+        if (screenId === 'practice-phase-screen') path += " > PRACTICE";
+        if (screenId === 'extras-screen') path += " > EXTRAS";
+        if (screenId === 'customize-screen') path += " > CUSTOMIZE";
+        if (screenId === 'keybinds-screen') path += " > KEYBINDS";
+        if (screenId === 'special-screen') path += " > EXTRAS > MULTIPLAYER CHALLENGES";
+        if (screenId === 'challenges-screen') path += " > EXTRAS > CHALLENGES";
+
+        // Dynamic routing for the shared Difficulty Screen
+        if (screenId === 'difficulty-screen') {
+            if (gameMode === 'full') {
+                if (challengeMode !== 'none') {
+                    path += " > EXTRAS > CHALLENGES > " + challengeMode.toUpperCase() + " > SELECT DIFFICULTY";
+                } else {
+                    path += " > FULL FIGHT > SELECT DIFFICULTY";
+                }
+            } else if (gameMode === 'multiplayer') {
+                path += " > EXTRAS > MULTIPLAYER CHALLENGES > " + (challengeMode === 'bullet' ? "BULLET MODE" : "MULTIPLAYER") + " > SELECT DIFFICULTY";
+            }
+        }
+
+        nav.innerText = path;
+        nav.style.display = 'block'; // Make sure it shows up on menus
     }
 }
 
@@ -1145,6 +1184,11 @@ function startGame(hp, difficultyName) {
     currentDifficulty = difficultyName; currentHpSetting = hp;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('debug-hits-display').style.display = 'none';
+
+    document.getElementById('breadcrumb-nav').style.display = 'none';
+    let nav = document.getElementById('breadcrumb-nav');
+    if (nav) nav.style.display = 'none';
+    
     resize(); canvas.style.display = 'block'; document.getElementById('hud').style.display = 'flex';
     
     if (challengeMode === 'invisible') {
