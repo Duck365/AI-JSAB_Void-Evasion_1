@@ -207,15 +207,14 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 .btn-random-magma:hover {
-    /* Uses the dynamically generated variables */
     background: linear-gradient(
         var(--magma-angle), 
         var(--magma-c1), var(--magma-c2), var(--magma-c3), var(--magma-c1)
-    );
-    background-size: 400% 400%;
-    animation: randomMagmaFlow 2.5s ease infinite;
-    color: white; 
-    border-color: white;
+    ) !important;
+    background-size: 400% 400% !important;
+    animation: randomMagmaFlow 2.5s ease infinite !important;
+    color: white !important; 
+    border-color: white !important;
     text-shadow: 0px 0px 5px rgba(0,0,0,0.8);
 }
 
