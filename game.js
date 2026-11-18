@@ -166,6 +166,20 @@ function updateColorButtons() {
     });
 }
 
+function randomizeMagmaButton(btn) {
+    // Generate a random angle for the flow direction
+    const randomAngle = Math.floor(Math.random() * 360) + 'deg';
+    
+    // Helper function to generate a random hex color
+    const getRandomColor = () => '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+    
+    // Apply the new random values directly to the button's CSS variables
+    btn.style.setProperty('--magma-angle', randomAngle);
+    btn.style.setProperty('--magma-c1', getRandomColor());
+    btn.style.setProperty('--magma-c2', getRandomColor());
+    btn.style.setProperty('--magma-c3', getRandomColor());
+}
+
 function spawnProjectile(x, y, vx, vy, size, life = Infinity, isBouncy = false, type = 'normal') {
     projectiles.push({ x, y, vx, vy, size, life, isBouncy, type });
 }
