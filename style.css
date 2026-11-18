@@ -196,3 +196,31 @@ input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none; margin: 0;
 }
 input[type=number] { -moz-appearance: textfield; }
+
+.btn-random-magma {
+    transition: all 0.3s ease;
+    /* Default variables so it has something before you hover */
+    --magma-angle: 45deg;
+    --magma-c1: #ff0000;
+    --magma-c2: #00ff00;
+    --magma-c3: #0000ff;
+}
+
+.btn-random-magma:hover {
+    /* Uses the dynamically generated variables */
+    background: linear-gradient(
+        var(--magma-angle), 
+        var(--magma-c1), var(--magma-c2), var(--magma-c3), var(--magma-c1)
+    );
+    background-size: 400% 400%;
+    animation: randomMagmaFlow 2.5s ease infinite;
+    color: white; 
+    border-color: white;
+    text-shadow: 0px 0px 5px rgba(0,0,0,0.8);
+}
+
+@keyframes randomMagmaFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
